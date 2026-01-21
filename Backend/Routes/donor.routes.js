@@ -1,8 +1,16 @@
 import express from 'express';
+import { v4 as uuidv4 } from "uuid";
 import { Donor } from '../Mongoose/Model/DonorSchema';
 import { Donation } from '../Mongoose/Model/Donation';
 
 const router = express.Router()
+
+
+/* Generate Donor Code */
+const generateDonorCode = () => {
+  return "DON-" + uuidv4();
+};
+
 
 router.get("/donor", async (req, res) => {
       
@@ -49,3 +57,5 @@ router.get("/donor/:phone_no/donation",async (req,res) => {
          res.status(500).json({ error: err.message })
     }
 })
+
+export default router;
