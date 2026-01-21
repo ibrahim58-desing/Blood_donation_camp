@@ -1,10 +1,10 @@
 import mongoose from "mongoose";
 
 const DonorSchema = new mongoose.Schema({
-    // donor_code: {
-    //     type: String,
-    //     unique: true
-    // },
+    donor_code: {
+        type: String,
+        unique: true
+    },
     name: {
         type: String,
         required: true
