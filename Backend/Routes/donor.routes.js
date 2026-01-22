@@ -2,7 +2,7 @@ import express from 'express';
 import { v4 as uuidv4 } from "uuid";
 import { Donor } from '../Mongoose/Model/DonorSchema';
 import { Donation } from '../Mongoose/Model/DonationSchema';
-import { checkSchema, validationResult, matchedData, param } from "express-validator"
+import { checkSchema, validationResult, matchedData, param, query } from "express-validator"
 import { donorvalidationschema } from '../Utils/DonorValidationSchema';
 
 const router = express.Router()
@@ -14,7 +14,7 @@ const generateDonorCode = () => {
 };
 
 
-router.get("/donosr", async (req, res) => {
+router.get("/donors", async (req, res) => {
 
     try {
         const donors = await Donor.find();
@@ -27,8 +27,8 @@ router.get("/donosr", async (req, res) => {
 router.get("/donors/:id", async (req, res) => {
 
     try {
-        const donor = Donor.findById(req.params.id)
-        if (!donor) return res.status(404).json({ messsage: "Donor not found" })
+        const donor = await Donor.findById(req.params.id)
+        if (!donor) return res.status(404).json({ message: "Donor not found" })
         res.json(donor)
     } catch (err) {
         res.status(500).json({ error: err.message })
@@ -63,7 +63,7 @@ router.post("/donors",
 router.put("/donors/:id",
     param("id").
         isMongoId().
-        withMessage('Invalide donor ID format')),
+        withMessage('Invalide donor ID format'),
     checkSchema(donorvalidationschema),
     async (req, res) => {
 
@@ -81,7 +81,7 @@ router.put("/donors/:id",
                 check2,
                 {
                     new: true,
-                    runValidator: true
+                    runValidators: true
                 }
             )
             if (!updatedonor) {
@@ -91,7 +91,7 @@ router.put("/donors/:id",
         } catch (err) {
             return res.status(400).json({ error: err.message })
         }
-    }
+    })
 
 router.delete("/donors/:id", async (req, res) => {
 
@@ -113,7 +113,7 @@ router.get("/donors/:id/donation", async (req, res) => {
     }
 })
 
-router.post("./donation", async (req, res) => {
+router.post("/donation", async (req, res) => {
     try {
         const { donor_id, donation_date, quantity_ml } = req.body;
         const donation = new Donation({
@@ -123,7 +123,7 @@ router.post("./donation", async (req, res) => {
         })
         await donation.save()
 
-        await Donor.findByIdAndUpdatedonor(donor_id, {
+        await Donor.findByIdAndUpdate(donor_id, {
             last_donation: donation_date,
             $inc: { total_donations: 1 },
             is_eligible: false
@@ -145,6 +145,63 @@ router.get("/donors/eligible", async (req, res) => {
 
 })
 
-         
+router.get("/donors/search",
+    query('blood_type')
+        .isIn(['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'])
+        .withMessage('Invalid blood type'),
+
+    query("phone")
+        .optional()
+        .isMobilePhone("en-IN")
+        .withMessage("Invalid phone number"),
+
+    query('name')
+        .optional()
+        .trim()
+        .isLength({ min: 2 })
+        .withMessage('Name must be at least 2 characters'),
+
+    async (req, res) => {
+        // Validate query params
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({ errors: errors.array() });
+        }
+
+        // Extract only validated data
+        const filters = matchedData(req);
+
+        try {
+            // Build MongoDB query dynamically
+            const queryObj = {};
+
+            if (filters.blood_type) {
+                queryObj.blood_type = filters.blood_type;
+            }
+
+            if (filters.phone) {
+                queryObj.phone = filters.phone;
+            }
+
+            if (filters.name) {
+                // Use regex for partial case-insensitive search
+                queryObj.name = { $regex: filters.name, $options: "i" };
+            }
+
+            const donors = await Donor.find(queryObj);
+
+            if (donors.length === 0) {
+                return res.status(404).json({ message: "No donors found" });
+            }
+
+            res.json(donors);
+        } catch (err) {
+            res.status(500).json({ error: err.message });
+        }
+    }
+);
+
+
+
 
 export default router;
