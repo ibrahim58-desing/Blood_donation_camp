@@ -20,8 +20,8 @@ export const donorvalidationschema = {
         notEmpty: {
             errorMessage: "phone  must not be empty"
         },
-        isMobile: {
-            option: ["en-IN"],
+        isMobilePhone: {
+            options: ["en-IN"],
             errorMessage: "Invalidde Indian mobile number"
         }
     },
@@ -30,25 +30,29 @@ export const donorvalidationschema = {
             errorMessage: "Blood type is required",
         },
         isIn: {
-            option: [["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"]],
+            options: [["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"]],
             errorMessage: "Invalide blood type"
         }
     },
     gender: {
-        required: true,
+        notEmpty: {
+            errorMessage: "Gender is required"
+        },
         isIn: {
             options: [["male", "female", "others"]],
             errorMessage: "Gender must be male, female or others"
         }
     },
     date_of_birth: {
-        required: true,
+        notEmpty: {
+            errorMessage: "Date of birth is required"
+        },
         isDate: {
-            errorMessage: "invlide date of birth"
+            errorMessage: "Invalid date of birth"
         }
     },
     address: {
-        isEmpty: {
+        notEmpty: {
             errorMessage: "Address must not be empty"
         },
         isString: {

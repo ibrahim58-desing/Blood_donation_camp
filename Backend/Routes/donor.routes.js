@@ -1,11 +1,11 @@
 import express from 'express';
 import { v4 as uuidv4 } from "uuid";
-import { Donor } from '../Mongoose/Model/DonorSchema';
-import { Donation } from '../Mongoose/Model/DonationSchema';
+import { Donor } from '../Mongoose/Model/DonorSchema.js';
+import { Donation } from '../Mongoose/Model/DonationSchema.js';
 import { checkSchema, validationResult, matchedData, param, query } from "express-validator"
-import { donorvalidationschema } from '../Utils/DonorValidationSchema';
+import { donorvalidationschema } from '../Utils/DonorValidationSchema.js';
 
-const router = express.Router()
+const router = express.Router();
 
 
 /* Generate Donor Code */
@@ -23,6 +23,63 @@ router.get("/donors", async (req, res) => {
         res.status(500).json({ error: err.message })
     }
 });
+
+router.get("/donors/search",
+    query('blood_type')
+        .isIn(['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'])
+        .withMessage('Invalid blood type'),
+
+    query("phone")
+        .optional()
+        .isMobilePhone("en-IN")
+        .withMessage("Invalid phone number"),
+
+    query('name')
+        .optional()
+        .trim()
+        .isLength({ min: 2 })
+        .withMessage('Name must be at least 2 characters'),
+
+    async (req, res) => {
+        // Validate query params
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({ errors: errors.array() });
+        }
+
+        // Extract only validated data
+        const filters = matchedData(req);
+
+        try {
+            // Build MongoDB query dynamically
+            const queryObj = {};
+
+            if (filters.blood_type) {
+                queryObj.blood_type = filters.blood_type;
+            }
+
+            if (filters.phone) {
+                queryObj.phone = filters.phone;
+            }
+
+            if (filters.name) {
+                // Use regex for partial case-insensitive search
+                queryObj.name = { $regex: filters.name, $options: "i" };
+            }
+
+            const donors = await Donor.find(queryObj);
+
+            if (donors.length === 0) {
+                return res.status(404).json({ message: "No donors found" });
+            }
+
+            res.json(donors);
+        } catch (err) {
+            res.status(500).json({ error: err.message });
+        }
+    }
+);
+
 
 router.get("/donors/:id", async (req, res) => {
 
@@ -145,61 +202,6 @@ router.get("/donors/eligible", async (req, res) => {
 
 })
 
-router.get("/donors/search",
-    query('blood_type')
-        .isIn(['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'])
-        .withMessage('Invalid blood type'),
-
-    query("phone")
-        .optional()
-        .isMobilePhone("en-IN")
-        .withMessage("Invalid phone number"),
-
-    query('name')
-        .optional()
-        .trim()
-        .isLength({ min: 2 })
-        .withMessage('Name must be at least 2 characters'),
-
-    async (req, res) => {
-        // Validate query params
-        const errors = validationResult(req);
-        if (!errors.isEmpty()) {
-            return res.status(400).json({ errors: errors.array() });
-        }
-
-        // Extract only validated data
-        const filters = matchedData(req);
-
-        try {
-            // Build MongoDB query dynamically
-            const queryObj = {};
-
-            if (filters.blood_type) {
-                queryObj.blood_type = filters.blood_type;
-            }
-
-            if (filters.phone) {
-                queryObj.phone = filters.phone;
-            }
-
-            if (filters.name) {
-                // Use regex for partial case-insensitive search
-                queryObj.name = { $regex: filters.name, $options: "i" };
-            }
-
-            const donors = await Donor.find(queryObj);
-
-            if (donors.length === 0) {
-                return res.status(404).json({ message: "No donors found" });
-            }
-
-            res.json(donors);
-        } catch (err) {
-            res.status(500).json({ error: err.message });
-        }
-    }
-);
 
 
 

@@ -42,4 +42,4 @@ const DonorSchema = new mongoose.Schema({
     },{ timeseries: true });
 
 
-export const Donor=mongoose.model("Donor",DonorSchema)
+export const Donor=mongoose.model("Donor_data",DonorSchema)

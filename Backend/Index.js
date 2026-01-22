@@ -1,5 +1,6 @@
 import express from "express";
 import authRoute from './Routes/auth.routes.js'
+import donorRoute from './Routes/donor.routes.js'
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 dotenv.config();
@@ -21,6 +22,8 @@ mongoose.connect('mongodb://localhost/BloodDonationCamp')
     .catch((err) => console.log(`Error:${err}`))
 
 app.use('/api', authRoute)
+
+app.use('/api',donorRoute )
  
 app.listen((PORT), () => {
     console.log("The server stared hearing");
