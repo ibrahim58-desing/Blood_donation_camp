@@ -5,6 +5,7 @@ const DonationSchema=new mongoose.Schema({
         type:mongoose.Schema.Types.ObjectId,
         ref:"Donor",
         required:true
+
     },
     donation_date:{
         type:Date,

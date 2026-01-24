@@ -82,7 +82,7 @@ router.get("/donors/search",
 
 router.get("/donors/eligible", async (req, res) => {
     try {
-        const donor = await Donor.find({ is_eligible: null })
+        const donor = await Donor.find({ is_eligible: false })
         res.status(200).json(donor);
     } catch (err) {
         res.status(500).json({ error: err.message });
@@ -182,7 +182,14 @@ router.delete("/donors/:donor_code", async (req, res) => {
 
 router.get("/donors/:donor_code/donation", async (req, res) => {
     try {
-        const donation = await Donation.find({ donor_id: req.params.donor_code })
+        const donor = await Donor.findOne({ donor_code:req.params.donor_code })
+        if (!donor){
+            return res.status(404).json({message:"donor not found"})
+        }
+
+        const donation =await Donation.find({donor_id:donor._id})
+      
+        
         res.json(donation);
     } catch (err) {
         res.status(500).json({ error: err.message })
@@ -191,19 +198,27 @@ router.get("/donors/:donor_code/donation", async (req, res) => {
 
 router.post("/donation", async (req, res) => {
     try {
-        const { donor_id, donation_date, quantity_ml } = req.body;
+        const { donor_code, donation_date, quantity_ml } = req.body;
+
+        const donor = await Donor.findOne({ donor_code })
+        if (!donor){
+            return res.status(404).json({message:"donor not found"})
+        }
+
         const donation = new Donation({
-            donor_id,
+           donor_id:donor._id,
             donation_date,
             quantity_ml
         })
         await donation.save()
 
-        await Donor.findByIdAndUpdate(donor_id, {
-            last_donation: donation_date,
-            $inc: { total_donations: 1 },
-            is_eligible: false
-        })
+            
+            donor.last_donation= donation_date;
+            donor.total_donations +=1;
+            donor.is_eligible = false;
+
+            await donor.save();
+      
         res.status(201).json({ message: "Donation recorded successfully" });
     } catch (err) {
         res.status(400).json({ error: err.message });
