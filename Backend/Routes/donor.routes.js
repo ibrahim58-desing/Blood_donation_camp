@@ -80,11 +80,22 @@ router.get("/donors/search",
     }
 );
 
+router.get("/donors/eligible", async (req, res) => {
+    try {
+        const donor = await Donor.find({ is_eligible: null })
+        res.status(200).json(donor);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 
-router.get("/donors/:id", async (req, res) => {
+})
+   
+
+
+router.get("/donors/:donor_code", async (req, res) => {
 
     try {
-        const donor = await Donor.findById(req.params.id)
+        const donor = await Donor.findOne({donor_code: req.params.donor_code })
         if (!donor) return res.status(404).json({ message: "Donor not found" })
         res.json(donor)
     } catch (err) {
@@ -117,43 +128,51 @@ router.post("/donors",
         }
     })
 
-router.put("/donors/:id",
-    param("id").
-        isMongoId().
-        withMessage('Invalide donor ID format'),
-    checkSchema(donorvalidationschema),
-    async (req, res) => {
+router.put(
+  "/donors/:donor_code",
 
-        const check1 = validationResult(req)
+  // validate donor_code properly
+  param("donor_code")
+    .notEmpty()
+    .withMessage("Donor code is required"),
 
-        if (!check1.isEmpty()) {
-            return res.status(400).json({ error: check1.array() })
-        }
+  checkSchema(donorvalidationschema),
 
-        const check2 = matchedData(req)
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ error: errors.array() });
+    }
 
-        try {
-            const updatedonor = await Donor.findByIdAndUpdate(
-                req.params.id,
-                check2,
-                {
-                    new: true,
-                    runValidators: true
-                }
-            )
-            if (!updatedonor) {
-                return res.status(404).json({ message: "Donor not found" });
-            }
-            res.status(200).json(updatedonor);
-        } catch (err) {
-            return res.status(400).json({ error: err.message })
-        }
-    })
-
-router.delete("/donors/:id", async (req, res) => {
+    const data = matchedData(req);
 
     try {
-        await Donor.findByIdAndDelete(req.params.id);
+      const updatedDonor = await Donor.findOneAndUpdate(
+        { donor_code: req.params.donor_code }, 
+        data,
+        {
+          new: true,
+          runValidators: true
+        }
+      );
+
+      if (!updatedDonor) {
+        return res.status(404).json({ message: "Donor not found" });
+      }
+
+      res.status(200).json(updatedDonor);
+
+    } catch (err) {
+      res.status(400).json({ error: err.message });
+    }
+  }
+);
+
+
+router.delete("/donors/:donor_code", async (req, res) => {
+
+    try {
+        await Donor.findOneAndDelete({donor_code: req.params.donor_code});
         res.json({ message: "Donor delete succresfully" })
     } catch (err) {
         res.status(500).json({ error: err.message })
@@ -161,9 +180,9 @@ router.delete("/donors/:id", async (req, res) => {
 
 })
 
-router.get("/donors/:id/donation", async (req, res) => {
+router.get("/donors/:donor_code/donation", async (req, res) => {
     try {
-        const donation = await Donation.find({ donor_id: req.params.id })
+        const donation = await Donation.find({ donor_id: req.params.donor_code })
         res.json(donation);
     } catch (err) {
         res.status(500).json({ error: err.message })
@@ -192,15 +211,6 @@ router.post("/donation", async (req, res) => {
 
 })
 
-router.get("/donors/eligible", async (req, res) => {
-    try {
-        const donor = await Donor.find({ is_eligible: true })
-        res.json(donor)
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-
-})
 
 
 
