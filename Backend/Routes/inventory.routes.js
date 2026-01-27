@@ -2,6 +2,7 @@ import express from 'express'
 import { inventoryValidationSchema } from '../Utils/InventoryValidationSchema.js'
 import { Inventory } from '../Mongoose/Model/InventorySchema.js'
 import { checkSchema, validationResult, matchData, matchedData } from 'express-validator'
+import { calculateExpiryDate } from '../Utils/expiryCalculator.js'
 
 const router = express.Router()
 
@@ -38,9 +39,14 @@ router.post('/inventory',
         const data = matchData(req)
 
         try {
-            const newunit = new Inventory(data)
-            await newunit.save()
+             // Calculate expiry date automatically
+            data.expiry_date = calculateExpiryDate(data.collection_date, data.component);
+
+            const newunit = new Inventory(data);
+            await newunit.save();
+
             res.status(201).json(newunit);
+
         } catch (err) {
             res.status(400).json({ error: err.message });
         }
@@ -80,3 +86,39 @@ router.delete("/inventory/:id", async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
+router.get('/inventory/summary',async (req,res) => {
+
+    try {
+        const summary =await Inventory.aggregate([
+            {$group:{
+                _id:"@blood_type",
+                    count:{$sum:1}
+                
+            }}
+        ])
+        res.json(summary)
+    } catch (err) {
+         res.status(500).json({ error: err.message });
+    }
+    
+})
+
+router.get('/inventory/expiring',async (req,res) => {
+    try {
+        const today =new Date()
+        const expire = new Date()
+        expire.setdate(today.getdate()+7)
+
+        const expiring =await Inventory.find({
+           status:"available",
+           expiry_data:{$gte:today,$lte:expire} 
+        })
+
+        res.json(expiring)
+
+    } catch (err) {
+
+         res.status(500).json({ error: err.message });
+    }
+})
