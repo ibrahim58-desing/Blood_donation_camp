@@ -1,7 +1,7 @@
 import express from 'express'
 import { inventoryValidationSchema } from '../Utils/InventoryValidationSchema.js'
 import { Inventory } from '../Mongoose/Model/InventorySchema.js'
-import { checkSchema, validationResult, matchData, matchedData } from 'express-validator'
+import { checkSchema, validationResult, matchedData } from 'express-validator'
 import { calculateExpiryDate } from '../Utils/expiryCalculator.js'
 
 const router = express.Router()
@@ -122,3 +122,26 @@ router.get('/inventory/expiring',async (req,res) => {
          res.status(500).json({ error: err.message });
     }
 })
+
+router.post('/inventory/discard',async (req,res) => {
+
+    try {
+        const result =await Inventory.updateMany(
+            {status:"expired"},
+            {status:"discarded"}
+        );
+
+        res.json({
+            message:"expired units discard",
+            modified:result.modifiedCount
+        })
+
+    } catch (err) {
+        
+        res.status(500).json({ error: err.message });
+
+    }
+    
+})
+
+export default router;

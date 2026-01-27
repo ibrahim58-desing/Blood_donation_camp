@@ -1,4 +1,3 @@
-import { Collection } from "mongoose";
 
 export const inventoryValidationSchema = {
     unit_number: {

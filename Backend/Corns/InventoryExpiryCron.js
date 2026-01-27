@@ -1,6 +1,8 @@
 import cron from 'node-cron'
 import { Inventory } from '../Mongoose/Model/InventorySchema.js'
 
+console.log("Inventory expiry cron loaded ✅");
+
 cron.schedule("0 0 * * *", async () => {
     try {
         const today = new Date()
