@@ -3,7 +3,7 @@ import authRoute from './Routes/auth.routes.js'
 import donorRoute from './Routes/donor.routes.js'
 import inventoryRoute from './Routes/inventory.routes.js'
 import mongoose from "mongoose";
-import './Utils/InventoryExpiryCron.js'
+import './Corns/InventoryExpiryCron.js'
 import dotenv from "dotenv";
 dotenv.config();
 
