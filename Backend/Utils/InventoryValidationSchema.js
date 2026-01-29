@@ -1,25 +1,16 @@
 
 export const inventoryValidationSchema = {
-    unit_number: {
-        notEmpty: {
-            errorMessage: "Unit number is required"
+    
+    donor_code: {
+        matches: {
+            options: [/^DON-[a-zA-Z0-9]+$/],
+            errorMessage: "Invalid donor code"
         }
     },
 
-    donor_id: {
-        isMongoId: {
-            errorMessage: "Invalid donor Id"
-        }
-    },
-    blood_type: {
+    components: {
         isIn: {
-            options: [['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-']],
-            errorMessage: "Invalid blood type"
-        }
-    },
-    component: {
-        isIn: {
-            option: [['whole_blood', 'rbc', 'plasma', 'platelets']],
+            options: [['whole_blood', 'rbc', 'plasma', 'platelets']],
             errorMessage: "Invalide component type"
         }
 
@@ -34,20 +25,21 @@ export const inventoryValidationSchema = {
         toDate: true
     },
     expiry_date: {
+        optional: true,
         isISO8601: {
             errorMessage: "Invalid expiry date"
         }
     },
-    storage_location:{
-        notEmpty:{
-            errorMessage:"Storage location is require"
+    storage_location: {
+        notEmpty: {
+            errorMessage: "Storage location is require"
         }
     },
-    status:{
-        option:true,
-        isIn:{
-            option:[['available','reserved','used','expired','discard']],
-            errorMessage:"Invalid status"
+    status: {
+        optional: true,
+        isIn: {
+            options: [['available', 'reserved', 'used', 'expired', 'discard']],
+            errorMessage: "Invalid status"
         }
     }
 

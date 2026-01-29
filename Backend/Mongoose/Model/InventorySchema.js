@@ -8,7 +8,7 @@ const InventorySchema = new mongoose.Schema({
     },
     donor_id: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Donor",
+        ref: "Donor_data",
         required: true,
 
     },
@@ -20,37 +20,37 @@ const InventorySchema = new mongoose.Schema({
     components: {
         type: String,
         enum: ['whole_blood', 'rbc', 'plasma', 'platelets'],
-        require: true,
+        required: true,
 
     },
-    volume_ml : {
+    volume_ml: {
         type: Number,
         required: true
-    },     
-    collection_data:{
-        type:Date,
-        required:true
     },
-    expiry_data:{
-        type:Date,
-        required:true
+    collection_date: {
+        type: Date,
+        required: true
     },
-    status:{
-        type:String,
-        enum:['available','reserved','used','required','expired','discard'],
-        default:'available'
+    expiry_date: {
+        type: Date,
+        required: true
     },
-    storage_location:{
-        type:String,
-        required:true
+    status: {
+        type: String,
+        default: 'available'
     },
-    test_result:{
-        type:Object,
-        default:{}
+
+    storage_location: {
+        type: String,
+        required: true
+    },
+    test_result: {
+        type: Object,
+        default: {}
     }
 },
-    {timestamps:true}
-     
+    { timestamps: true }
+
 );
 
-export const Inventory=mongoose.model("Inventory",InventorySchema)
+export const Inventory = mongoose.model("Inventory", InventorySchema)
