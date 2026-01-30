@@ -1,6 +1,6 @@
-import express from 'express';
-import { Request } from '../Mongoose/RequestSchema';
-import { requestValidationSchema } from '../Utils/RequestValidationSchema';
+import express, { request } from 'express';
+import { Request } from '../Mongoose/Model/RequestSchema.js';
+import { requestValidationSchema } from '../Utils/RequestValidationSchema.js';
 import { checkSchema, validationResult, matchedData } from 'express-validator';
 import { v4 as uuidv4 } from "uuid";
 
@@ -10,7 +10,7 @@ const generateRequestNumber = () => {
     return "REQ-" + uuidv4().slice(0, 8)
 }
 
-router.get('/request', async (req, res) => {
+router.get('/requests', async (req, res) => {
 
     try {
         const requests = await Request.find()
@@ -21,15 +21,29 @@ router.get('/request', async (req, res) => {
 
 })
 
-router.get("/requests/:id", async (req, res) => {
-    try {
-        const request = await Request.findById(req.params.id);
-        if (!request) return res.status(404).json({ message: "Request not found" });
-        res.json(request);
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
+router.get("/requests/pending", async (req, res) => {
+  try {
+    const requests = await Request.find({ status: "pending" });
+    res.json(requests);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
+
+router.get("/requests/urgent", async (req,res) => {
+
+    try {
+        const urgentcy = await Request.find({  
+           urgency:{$in:["urgent","critical"]}
+        })
+        res.json(urgentcy)
+    } catch (err) {
+         res.status(500).json({ error: err.message });
+    }
+    
+})
+
+
 
 router.post(
     "/requests",
@@ -44,7 +58,7 @@ router.post(
         try {
             const request = new Request({
                 ...data,
-                request_number: generateRequestNumber()
+                request_code: generateRequestNumber()
             });
 
             await request.save();
@@ -54,6 +68,23 @@ router.post(
         }
     }
 );
+
+router.put("/requests/:id/reject", async (req, res) => {
+
+    try {
+        const reject = await Request.findByIdAndUpdate(
+            req.params.id,
+            { status: "rejected" },
+            { new: true }
+        )
+
+        res.json(reject)
+
+    } catch (err) {
+       res.status(500).json({ error: err.message });
+    }
+
+})
 
 router.put("/requests/:id/approve", async (req, res) => {
     try {
@@ -74,4 +105,47 @@ router.put("/requests/:id/approve", async (req, res) => {
 });
 
 
+
+router.put("/requests/:id/fulfill",async (req,res) => {
+
+    try {
+        const fulfill =await Request.findByIdAndUpdate(
+            req.params.id,
+            {status:"fulfilled"},
+            {new:true}
+        )
+        res.json(fulfill)
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+    
+})
+
+router.put("/requests/:id/cancel", async (req, res) => {
+  try {
+    const request = await Request.findByIdAndUpdate(
+      req.params.id,
+      { status: "cancelled" },
+      { new: true }
+    );
+
+    res.json(request);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.get("/requests/:id", async (req, res) => {
+    try {
+        const request = await Request.findById(req.params.id);
+        if (!request) return res.status(404).json({ message: "Request not found" });
+        res.json(request);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+
+
+export default router
 

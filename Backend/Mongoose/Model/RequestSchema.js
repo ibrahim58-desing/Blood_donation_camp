@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 
 const RequestSchema = new mongoose.Schema(
   {
-    request_number: {
+    request_code: {
       type: String,
       unique: true,
       required: true
