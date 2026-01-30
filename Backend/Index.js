@@ -3,6 +3,7 @@ import authRoute from './Routes/auth.routes.js'
 import donorRoute from './Routes/donor.routes.js'
 import inventoryRoute from './Routes/inventory.routes.js'
 import requestRoutes from './Routes/request.routes.js'
+import reportRoutes from './Routes/report.routes.js'
 import mongoose from "mongoose";
 import './Corns/InventoryExpiryCron.js'
 import dotenv from "dotenv";
@@ -31,6 +32,8 @@ app.use('/api',donorRoute )
 app.use('/api',inventoryRoute)
 
 app.use('/api',requestRoutes)
+
+app.use('/api',reportRoutes)
  
 app.listen((PORT), () => {
     console.log("The server stared hearing");
