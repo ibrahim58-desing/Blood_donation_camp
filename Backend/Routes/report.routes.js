@@ -8,7 +8,7 @@ import { protect,authorize } from '../Middleware/Auth.js';
 
 const router = express.Router()
 
-router.get("/reports/inventory", protect, authorize('admin'), async (req, res) => {
+router.get("/reports/inventory" ,protect, authorize('admin','technician'), async (req, res) => {
     try {
         const statusSummary = await Inventory.aggregate([
             {
@@ -53,7 +53,7 @@ router.get("/reports/inventory", protect, authorize('admin'), async (req, res) =
     }
 })
 
-router.get("/reports/donations", protect, authorize('admin'), async (req, res) => {
+router.get("/reports/donations" ,protect, authorize('admin','technician'), async (req, res) => {
   try {
     const totalDonations = await Donation.countDocuments();
 
@@ -103,7 +103,7 @@ router.get("/reports/donations", protect, authorize('admin'), async (req, res) =
 });
 
 
-router.get("/reports/requests", protect, authorize('admin'), async (req, res) => {
+router.get("/reports/requests" ,protect, authorize('admin','technician'), async (req, res) => {
   try {
     // 1️⃣ STATUS SUMMARY
     const statusSummary = await Request.aggregate([
@@ -164,7 +164,7 @@ router.get("/reports/requests", protect, authorize('admin'), async (req, res) =>
   }
 });
 
-router.get("/reports/dashboard", async (req, res) => {
+router.get("/reports/dashboard" ,protect, authorize('admin'), async (req, res) => {
   try {
     const donors = await Donor.countDocuments();
     const donations = await Donation.countDocuments();
