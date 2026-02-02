@@ -6,6 +6,8 @@ import { checkSchema, validationResult, matchedData } from 'express-validator'
 import { calculateExpiryDate } from '../Utils/expiryCalculator.js'
 import { Donor } from '../Mongoose/Model/DonorSchema.js'
 import { v4 as uuidv4 } from "uuid";
+import { protect,authorize } from '../Middleware/Auth.js';
+
 
 
 const router = express.Router()
@@ -13,7 +15,7 @@ const router = express.Router()
 console.log("Registered Mongoose models:", mongoose.modelNames());
 
 
-router.get('/inventory', async (req, res) => {
+router.get('/inventory' ,protect, authorize('admin','technician'), async (req, res) => {
     try {
 
         const units = await Inventory.find()
@@ -46,7 +48,7 @@ router.get('/inventory/summary', async (req, res) => {
 
 })
 
-router.get('/inventory/expiring', async (req, res) => {
+router.get('/inventory/expiring',protect, authorize('admin','technician'), async (req, res) => {
     try {
         const today = new Date()
         const expire = new Date()
@@ -65,7 +67,7 @@ router.get('/inventory/expiring', async (req, res) => {
     }
 })
 
-router.post('/inventory/discard', async (req, res) => {
+router.post('/inventory/discard' , protect, authorize('admin'), async (req, res) => {
 
     try {
         const result = await Inventory.updateMany(
@@ -88,7 +90,7 @@ router.post('/inventory/discard', async (req, res) => {
 
 
 
-router.get('/inventory/:id', async (req, res) => {
+router.get('/inventory/:id',protect, authorize('admin','technician'), async (req, res) => {
 
     try {
         const units = await Inventory.findById(req.params.id)
@@ -101,7 +103,7 @@ router.get('/inventory/:id', async (req, res) => {
 
 })
 
-router.post('/inventory',
+router.post('/inventory',protect, authorize('admin','technician'),
     checkSchema(inventoryValidationSchema),
     async (req, res) => {
 
@@ -138,7 +140,7 @@ router.post('/inventory',
 
     })
 
-router.put('/inventory/:id',
+router.put('/inventory/:id',protect, authorize('admin','technician'),
     checkSchema(inventoryValidationSchema),
     async (req, res) => {
 
@@ -160,7 +162,39 @@ router.put('/inventory/:id',
     }
 )
 
-router.delete("/inventory/:id", async (req, res) => {
+router.put(
+  "/inventory/:id/status",protect, authorize('admin','technician'),
+  async (req, res) => {
+    try {
+      const { status } = req.body;
+
+      if (!status) {
+        return res.status(400).json({ error: "Status is required" });
+      }
+
+      const updated = await Inventory.findByIdAndUpdate(
+        req.params.id,
+        { status },
+        { new: true, runValidators: true }
+      );
+
+      if (!updated) {
+        return res.status(404).json({ error: "Inventory unit not found" });
+      }
+
+      res.json({
+        message: "Status updated successfully",
+        unit: updated
+      });
+
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  }
+);
+
+
+router.delete("/inventory/:id", protect, authorize('admin'), async (req, res) => {
     try {
         const deleted = await Inventory.findByIdAndDelete(req.params.id);
         if (!deleted) {

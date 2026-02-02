@@ -1,5 +1,6 @@
 import express, { request } from 'express';
 import { Request } from '../Mongoose/Model/RequestSchema.js';
+import { protect,authorize } from '../Middleware/Auth.js';
 import { requestValidationSchema } from '../Utils/RequestValidationSchema.js';
 import { checkSchema, validationResult, matchedData } from 'express-validator';
 import { v4 as uuidv4 } from "uuid";
@@ -10,7 +11,7 @@ const generateRequestNumber = () => {
     return "REQ-" + uuidv4().slice(0, 8)
 }
 
-router.get('/requests', async (req, res) => {
+router.get('/requests',protect, authorize('admin','technician'), async (req, res) => {
 
     try {
         const requests = await Request.find()
@@ -21,7 +22,7 @@ router.get('/requests', async (req, res) => {
 
 })
 
-router.get("/requests/pending", async (req, res) => {
+router.get("/requests/pending" ,protect, authorize('admin','technician'), async (req, res) => {
   try {
     const requests = await Request.find({ status: "pending" });
     res.json(requests);
@@ -69,7 +70,7 @@ router.post(
     }
 );
 
-router.put("/requests/:id/reject", async (req, res) => {
+router.put("/requests/:id/reject",protect, authorize('admin','technician'), async (req, res) => {
 
     try {
         const reject = await Request.findByIdAndUpdate(
@@ -86,7 +87,7 @@ router.put("/requests/:id/reject", async (req, res) => {
 
 })
 
-router.put("/requests/:id/approve", async (req, res) => {
+router.put("/requests/:id/approve",protect, authorize('admin','technician'), async (req, res) => {
     try {
         const request = await Request.findByIdAndUpdate(
             req.params.id,
@@ -106,7 +107,7 @@ router.put("/requests/:id/approve", async (req, res) => {
 
 
 
-router.put("/requests/:id/fulfill",async (req,res) => {
+router.put("/requests/:id/fulfill" ,protect, authorize('admin','technician'),async (req,res) => {
 
     try {
         const fulfill =await Request.findByIdAndUpdate(
@@ -135,7 +136,36 @@ router.put("/requests/:id/cancel", async (req, res) => {
   }
 });
 
-router.get("/requests/:id", async (req, res) => {
+router.put(
+  "/requests/:id",protect, authorize('admin','technician'),
+  checkSchema(requestValidationSchema),
+  async (req, res) => {
+
+    const errors = validationResult(req);
+    if (!errors.isEmpty())
+      return res.status(400).json({ errors: errors.array() });
+
+    const data = matchedData(req);
+
+    try {
+      const updatedRequest = await Request.findByIdAndUpdate(
+        req.params.id,
+        data,
+        { new: true, runValidators: true }
+      );
+
+      if (!updatedRequest)
+        return res.status(404).json({ message: "Request not found" });
+
+      res.json(updatedRequest);
+
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  }
+);
+
+router.get("/requests/:id",protect, authorize('admin','technician'), async (req, res) => {
     try {
         const request = await Request.findById(req.params.id);
         if (!request) return res.status(404).json({ message: "Request not found" });

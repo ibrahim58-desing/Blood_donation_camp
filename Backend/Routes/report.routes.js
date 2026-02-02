@@ -3,10 +3,12 @@ import { Donation } from "../Mongoose/Model/DonationSchema.js";
 import { Request } from "../Mongoose/Model/RequestSchema.js";
 import { Donor } from "../Mongoose/Model/DonorSchema.js";
 import { Inventory } from "../Mongoose/Model/InventorySchema.js";
+import { protect,authorize } from '../Middleware/Auth.js';
+
 
 const router = express.Router()
 
-router.get("/reports/inventory", async (req, res) => {
+router.get("/reports/inventory", protect, authorize('admin'), async (req, res) => {
     try {
         const statusSummary = await Inventory.aggregate([
             {
@@ -51,7 +53,7 @@ router.get("/reports/inventory", async (req, res) => {
     }
 })
 
-router.get("/reports/donations", async (req, res) => {
+router.get("/reports/donations", protect, authorize('admin'), async (req, res) => {
   try {
     const totalDonations = await Donation.countDocuments();
 
@@ -101,7 +103,7 @@ router.get("/reports/donations", async (req, res) => {
 });
 
 
-router.get("/reports/requests", async (req, res) => {
+router.get("/reports/requests", protect, authorize('admin'), async (req, res) => {
   try {
     // 1️⃣ STATUS SUMMARY
     const statusSummary = await Request.aggregate([

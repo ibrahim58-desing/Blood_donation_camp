@@ -4,6 +4,7 @@ import { Donor } from '../Mongoose/Model/DonorSchema.js';
 import { Donation } from '../Mongoose/Model/DonationSchema.js';
 import { checkSchema, validationResult, matchedData, param, query } from "express-validator"
 import { donorvalidationschema } from '../Utils/DonorValidationSchema.js';
+import { protect,authorize } from '../Middleware/Auth.js';
 
 
 const router = express.Router();
@@ -15,7 +16,7 @@ const generateDonorCode = () => {
 };
 
 
-router.get("/donors", async (req, res) => {
+router.get("/donors" , protect, authorize('admin','technician'), async (req, res) => {
 
     try {
         const donors = await Donor.find();
@@ -25,7 +26,7 @@ router.get("/donors", async (req, res) => {
     }
 });
 
-router.get("/donors/search",
+router.get("/donors/search", protect, authorize('admin','technician'),
     query('blood_type')
         .isIn(['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'])
         .withMessage('Invalid blood type'),
@@ -81,9 +82,9 @@ router.get("/donors/search",
     }
 );
 
-router.get("/donors/eligible", async (req, res) => {
+router.get("/donors/eligible", protect, authorize('admin','technician'), async (req, res) => {
     try {
-        const donor = await Donor.find({ is_eligible: false })
+        const donor = await Donor.find({ is_eligible: true })
         res.status(200).json(donor);
     } catch (err) {
         res.status(500).json({ error: err.message });
@@ -93,7 +94,7 @@ router.get("/donors/eligible", async (req, res) => {
    
 
 
-router.get("/donors/:donor_code", async (req, res) => {
+router.get("/donors/:donor_code", protect, authorize('admin','technician'), async (req, res) => {
 
     try {
         const donor = await Donor.findOne({donor_code: req.params.donor_code })
@@ -104,7 +105,7 @@ router.get("/donors/:donor_code", async (req, res) => {
     }
 
 })
-router.post("/donors",
+router.post("/donors", protect, authorize('admin','technician'),
     checkSchema(donorvalidationschema),
     async (req, res) => {
         const check1 = validationResult(req)
@@ -131,7 +132,7 @@ router.post("/donors",
 
 router.put(
   "/donors/:donor_code",
-
+  protect, authorize('admin','technician'),
   // validate donor_code properly
   param("donor_code")
     .notEmpty()
@@ -170,7 +171,7 @@ router.put(
 );
 
 
-router.delete("/donors/:donor_code", async (req, res) => {
+router.delete("/donors/:donor_code", protect, authorize('admin'), async (req, res) => {
 
     try {
         await Donor.findOneAndDelete({donor_code: req.params.donor_code});
@@ -181,7 +182,7 @@ router.delete("/donors/:donor_code", async (req, res) => {
 
 })
 
-router.get("/donors/:donor_code/donation", async (req, res) => {
+router.get("/donors/:donor_code/donation", protect, authorize('admin','technician'), async (req, res) => {
     try {
         const donor = await Donor.findOne({ donor_code:req.params.donor_code })
         if (!donor){
@@ -197,7 +198,7 @@ router.get("/donors/:donor_code/donation", async (req, res) => {
     }
 })
 
-router.post("/donation", async (req, res) => {
+router.post("/donors/:donor_code/donate", protect, authorize('admin','technician'), async (req, res) => {
     try {
         const { donor_code, donation_date, quantity_ml } = req.body;
 

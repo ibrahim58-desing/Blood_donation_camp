@@ -2,12 +2,12 @@ import express from 'express'
 import { Users } from '../Mongoose/Model/UserSchema.js';
 import { checkSchema, matchedData, validationResult } from "express-validator";
 import { createuservalidationschema } from '../Utils/ValidationSchema.js';
-import { protect} from '../Middleware/Auth.js';
+import { protect,authorize} from '../Middleware/Auth.js';
 import { generateToken, generateRefreshToken } from '../Utils/TokenUtil.js';
 
 const router = express.Router();
 
-router.post('/register', checkSchema(createuservalidationschema), async (req, res) => {
+router.post('/register' ,protect,authorize('admin'),  checkSchema(createuservalidationschema), async (req, res) => {
     try {
         const check1 = validationResult(req)
         if (!check1.isEmpty()) {
@@ -47,7 +47,7 @@ router.post('/register', checkSchema(createuservalidationschema), async (req, re
     }
 })
 
-router.post('/login', async (req, res) => {
+router.post('/login' , protect, authorize('admin','technician'), async (req, res) => {
     try {
         const { email, password } = req.body;
 
@@ -70,8 +70,8 @@ router.post('/login', async (req, res) => {
         }
 
         // Generate JWT token
-        const token = generateToken(user._id);
-        const refreshToken = generateRefreshToken(user._id)
+        const token = generateToken(user._id,user.role);
+        const refreshToken = generateRefreshToken(user._id,user.role)
 
         user.refreshToken =refreshToken;
         await user.save();
@@ -132,7 +132,7 @@ router.post("/refresh", async (req, res) => {
     }
 })
 
-router.post("/password",protect,async (req,res) => {
+router.post("/password", protect, authorize('admin','technician'),async (req,res) => {
 
     const {oldpassword,newpassword} = req.body
 
@@ -156,6 +156,83 @@ router.post("/password",protect,async (req,res) => {
     res.json({msg:"password updated successfully"})
     
 })
+
+// In auth.routes.js - Add admin login endpoint
+router.post('/admin/login', async (req, res) => {
+    try {
+        const { email, password } = req.body;
+
+        // Find user
+        const user = await Users.findOne({ email });
+
+        if (!user) {
+            return res.status(401).json({
+                success: false,
+                msg: "Invalid credentials"
+            });
+        }
+
+        // Check password
+        const isMatch = await user.comparePassword(password);
+
+        if (!isMatch) {
+            return res.status(401).json({
+                success: false,
+                msg: "Invalid credentials"
+            });
+        }
+
+        // CRITICAL: Check if user is an admin
+        if (user.role !== 'admin') {
+            return res.status(403).json({
+                success: false,
+                msg: "Access denied. Admin privileges required."
+            });
+        }
+
+        // Generate tokens
+        const token = generateToken(user._id);
+        const refreshToken = generateRefreshToken(user._id);
+
+        user.refreshToken = refreshToken;
+        await user.save();
+
+        // Send response
+        res.json({
+            success: true,
+            msg: "Admin login successful",
+            token,
+            refreshToken,
+            user: {
+                id: user._id,
+                name: user.name,
+                email: user.email,
+                role: user.role // Important: Include role in response
+            }
+        });
+
+    } catch (error) {
+        console.error("Admin login error:", error);
+        res.status(500).json({ 
+            success: false, 
+            msg: "Server error during admin authentication" 
+        });
+    }
+});
+
+// In auth.routes.js - Add admin verification endpoint
+router.get('/admin/verify', protect, authorize('admin'), (req, res) => {
+    res.json({
+        success: true,
+        msg: "Admin privileges verified",
+        user: {
+            id: req.user._id,
+            name: req.user.name,
+            email: req.user.email,
+            role: req.user.role
+        }
+    });
+});
 
 
 export default router

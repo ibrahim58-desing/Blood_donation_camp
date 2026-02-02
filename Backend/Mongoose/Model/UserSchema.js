@@ -17,6 +17,11 @@ const UserSchema= new mongoose.Schema({
         requried:true,
         
     },
+   role: {
+        type: String,
+        enum: ['admin', 'technician'], // Only staff roles
+        default: 'technician' // New staff start as technicians
+    },
     refreshToken:{
         type:String,
        
