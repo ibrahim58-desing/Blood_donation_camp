@@ -7,7 +7,7 @@ import { generateToken, generateRefreshToken } from '../Utils/TokenUtil.js';
 
 const router = express.Router();
 
-router.post('/register' ,protect,authorize('admin'),  checkSchema(createuservalidationschema), async (req, res) => {
+router.post('/register' ,  checkSchema(createuservalidationschema), async (req, res) => {
     try {
         const check1 = validationResult(req)
         if (!check1.isEmpty()) {
@@ -26,8 +26,10 @@ router.post('/register' ,protect,authorize('admin'),  checkSchema(createuservali
 
         const user = await Users.create({ name, email, password })
 
-        const token = generateToken(user._id);
-        const refreshToken = generateRefreshToken(user._id)
+        const token = generateToken(user._id, user.role)
+
+        const refreshToken = generateRefreshToken(user._id, user.role);
+
 
         user.refreshToken =refreshToken;
         await user.save();
@@ -47,7 +49,7 @@ router.post('/register' ,protect,authorize('admin'),  checkSchema(createuservali
     }
 })
 
-router.post('/login' , protect, authorize('admin','technician'), async (req, res) => {
+router.post('/login' , async (req, res) => {
     try {
         const { email, password } = req.body;
 
@@ -72,6 +74,8 @@ router.post('/login' , protect, authorize('admin','technician'), async (req, res
         // Generate JWT token
         const token = generateToken(user._id,user.role);
         const refreshToken = generateRefreshToken(user._id,user.role)
+        console.log("LOGIN TOKEN:", token);
+
 
         user.refreshToken =refreshToken;
         await user.save();
@@ -191,8 +195,9 @@ router.post('/admin/login', async (req, res) => {
         }
 
         // Generate tokens
-        const token = generateToken(user._id);
-        const refreshToken = generateRefreshToken(user._id);
+        const token = generateToken(user._id, user.role)
+
+        const refreshToken = generateRefreshToken(user._id, user.role);
 
         user.refreshToken = refreshToken;
         await user.save();
