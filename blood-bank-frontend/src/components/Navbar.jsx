@@ -7,15 +7,21 @@ import {
   FaUser,
   FaUserPlus,
   FaBars,
-  FaTimes
+  FaTimes,
+  FaStethoscope,
+  FaAmbulance,
+  FaHandHoldingHeart,
+  FaUsers,
+  FaArrowRight,
+  FaStar
 } from 'react-icons/fa';
 
 const Navbar = () => {
   const [activeTab, setActiveTab] = useState('Home');
   const [isOpen, setIsOpen] = useState(false);
-  const [selectorStyle, setSelectorStyle] = useState({});
-  const navRef = useRef(null);
-  const itemRefs = useRef([]);
+  const [isAboutSection, setIsAboutSection] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const observerRef = useRef(null);
 
   const menuItems = [
     { id: 1, name: 'Home', icon: <FaHome /> },
@@ -24,111 +30,234 @@ const Navbar = () => {
     { id: 4, name: 'Login', icon: <FaUser /> },
   ];
 
-  useEffect(() => {
-    itemRefs.current = itemRefs.current.slice(0, menuItems.length);
-  }, [menuItems]);
+  const aboutIcons = [
+    <FaStethoscope key="doctor" />,
+    <FaAmbulance key="ambulance" />,
+    <FaHandHoldingHeart key="help" />,
+    <FaUsers key="team" />
+  ];
 
-  const updateSelector = (index) => {
-    const activeElement = itemRefs.current[index];
-    if (!activeElement || !navRef.current) return;
-
-    const rect = activeElement.getBoundingClientRect();
-    const navRect = navRef.current.getBoundingClientRect();
-    
-    setSelectorStyle({
-      top: `${rect.top - navRect.top}px`,
-      left: `${rect.left - navRect.left}px`,
-      height: `${rect.height}px`,
-      width: `${rect.width}px`,
-    });
-  };
-
-  const handleTabClick = (itemName, index) => {
+  const handleTabClick = (itemName) => {
     setActiveTab(itemName);
-    updateSelector(index);
   };
 
+  // Scroll effect
   useEffect(() => {
-    const initialIndex = menuItems.findIndex(item => item.name === 'Home');
-    if (initialIndex !== -1) {
-      setTimeout(() => updateSelector(initialIndex), 100);
-    }
+    const handleScroll = () => {
+      setScrolled(window.pageYOffset > 50);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Intersection Observer for About section
   useEffect(() => {
-    const handleResize = () => {
-      const currentIndex = menuItems.findIndex(item => item.name === activeTab);
-      if (currentIndex !== -1) {
-        setTimeout(() => updateSelector(currentIndex), 100);
+    const aboutSection = document.getElementById('about-section');
+    if (!aboutSection) return;
+
+    observerRef.current = new IntersectionObserver(
+      (entries) => {
+        entries.forEach(entry => {
+          setIsAboutSection(entry.isIntersecting);
+        });
+      },
+      {
+        threshold: 0.3,
+        rootMargin: '-100px 0px 0px 0px'
       }
-    };
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, [activeTab]);
+    );
+
+    observerRef.current.observe(aboutSection);
+    return () => observerRef.current?.disconnect();
+  }, []);
+
+  const navbarBackground = isAboutSection 
+    ? 'bg-gradient-to-b from-white via-red-50/95 to-white/95'
+    : 'bg-white/95 backdrop-blur-md';
+  
+  const logoColor = isAboutSection ? 'text-red-700' : 'text-red-600';
 
   return (
-    <nav className="bg-white/95 backdrop-blur-md shadow-lg sticky top-0 z-50 border-b border-red-100">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16 md:h-20">
+    <nav 
+      className={`
+        ${navbarBackground}
+        backdrop-blur-lg
+        sticky top-0 z-50 
+        border-b 
+        ${isAboutSection ? 'border-red-200/50' : 'border-gray-100'}
+        transition-all duration-500
+        ${scrolled ? 'h-16' : 'h-20'}
+        shadow-lg ${isAboutSection ? 'shadow-red-100/50' : 'shadow-gray-100/50'}
+      `}
+    >
+      {/* Animated floating elements in About section */}
+      {isAboutSection && (
+        <div className="absolute top-0 left-0 w-full h-full pointer-events-none overflow-hidden">
+          {aboutIcons.map((icon, index) => (
+            <div
+              key={index}
+              className="absolute text-red-200/40"
+              style={{
+                top: `${10 + index * 20}%`,
+                left: `${index * 25}%`,
+                fontSize: '1.8rem',
+                animation: `float 10s ease-in-out infinite ${index * 1}s`
+              }}
+            >
+              {icon}
+            </div>
+          ))}
+          <style jsx>{`
+            @keyframes float {
+              0%, 100% { transform: translateY(0px) rotate(0deg); opacity: 0.4; }
+              50% { transform: translateY(-30px) rotate(180deg); opacity: 0.2; }
+            }
+          `}</style>
+        </div>
+      )}
+
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div className={`flex items-center justify-between transition-all duration-300 ${
+          scrolled ? 'h-16' : 'h-20'
+        }`}>
           {/* Logo */}
-          <div className="flex items-center space-x-2">
-            <div className="bg-red-600 w-10 h-10 rounded-full flex items-center justify-center">
-              <FaHeartbeat className="text-white text-xl" />
+          <div className="flex items-center space-x-3 group cursor-pointer">
+            <div className={`
+              flex items-center justify-center
+              transition-all duration-500
+              ${isAboutSection 
+                ? 'bg-linear-to-br from-red-500 to-pink-500 shadow-lg shadow-red-300/50' 
+                : 'bg-linear-to-br from-red-600 to-red-500'
+              }
+              ${scrolled ? 'w-10 h-10' : 'w-12 h-12'}
+              rounded-full
+              group-hover:scale-110
+              group-hover:rotate-12
+              shadow-lg
+            `}>
+              <FaHeartbeat className="text-white text-lg md:text-xl" />
             </div>
             <div>
-              <h1 className="text-xl md:text-2xl font-bold text-red-700">
-                Blood<span className="text-red-600">Connect</span>
+              <h1 className={`
+                font-bold transition-all duration-500
+                ${scrolled ? 'text-xl' : 'text-2xl'}
+                ${logoColor}
+                group-hover:text-red-700
+              `}>
+                M<span className="text-red-600">EGA</span>
               </h1>
-              <p className="text-xs text-gray-500 hidden md:block">Saving Lives Together</p>
+              <p className={`
+                text-xs text-gray-600 transition-all duration-300
+                ${scrolled ? 'opacity-0 h-0' : 'opacity-100 h-auto'}
+                ${isAboutSection ? 'text-red-500/80' : ''}
+              `}>
+                Medical Emergency Group Association
+              </p>
             </div>
           </div>
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-1">
-            <div className="relative" ref={navRef}>
-              <div className="flex space-x-1 items-center">
-                {/* Animated Selector */}
-                <div 
-                  className="absolute bg-red-50 rounded-lg transition-all duration-300 ease-out border border-red-100"
-                  style={selectorStyle}
-                />
+            {/* Regular Navigation Items */}
+            <div className="flex items-center bg-gray-50/50 rounded-xl p-1">
+              {menuItems.map((item) => (
+                <button
+                  key={item.id}
+                  onClick={() => handleTabClick(item.name)}
+                  className={`
+                    relative flex items-center px-6 py-3 text-sm font-medium 
+                    transition-all duration-300 rounded-lg mx-1 min-w-25 justify-center
+                    ${activeTab === item.name
+                      ? isAboutSection && item.name === 'About Us'
+                        ? 'bg-linear-to-r from-red-100 to-pink-100 text-red-700 font-bold shadow-inner'
+                        : 'bg-white text-red-700 font-semibold shadow-sm'
+                      : 'text-gray-700 hover:text-red-600 hover:bg-white/80'
+                    }
+                    ${isAboutSection && item.name === 'About Us' ? 'ring-1 ring-red-200/50' : ''}
+                  `}
+                >
+                  <span className={`mr-2 ${isAboutSection && item.name === 'About Us' ? 'text-red-600' : ''}`}>
+                    {item.icon}
+                  </span>
+                  {item.name}
+                  
+                  {/* Special indicator for About Us in About section */}
+                  {isAboutSection && item.name === 'About Us' && (
+                    <>
+                      <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full animate-ping" />
+                      <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full" />
+                    </>
+                  )}
+                </button>
+              ))}
+            </div>
+            
+            {/* Volunteer Button - Completely Separate */}
+            <div className="ml-2">
+              <button 
+                onClick={() => handleTabClick('Volunteer')}
+                className={`
+                  relative flex items-center px-8 py-3 text-sm font-bold
+                  transition-all duration-500 rounded-xl
+                  overflow-hidden group
+                  ${activeTab === 'Volunteer'
+                    ? 'bg-linear-to-r from-red-600 via-pink-600 to-red-600 text-white shadow-2xl scale-105'
+                    : `bg-linear-to-r from-red-500 via-pink-500 to-red-500 text-white 
+                       shadow-xl hover:shadow-2xl hover:scale-105
+                       ${isAboutSection ? 'animate-pulse-slow' : ''}`
+                  }
+                `}
+              >
+                {/* Shimmer effect */}
+                <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
                 
-                {/* Regular Menu Items */}
-                {menuItems.map((item, index) => (
-                  <div
-                    key={item.id}
-                    ref={el => itemRefs.current[index] = el}
-                    className="relative z-10"
-                  >
-                    <button
-                      onClick={() => handleTabClick(item.name, index)}
-                      className={`flex items-center px-6 py-3 text-sm font-medium transition-colors duration-300 rounded-lg mx-1 ${
-                        activeTab === item.name 
-                          ? 'text-red-700 font-semibold' 
-                          : 'text-gray-700 hover:text-red-600 hover:bg-red-50'
-                      }`}
-                    >
-                      <span className="mr-2">{item.icon}</span>
-                      {item.name}
-                    </button>
-                  </div>
-                ))}
+                {/* Button content */}
+                <FaUserPlus className="mr-3 transition-transform group-hover:scale-110 group-hover:rotate-12" />
+                <span className="relative tracking-wide">VOLUNTEER</span>
                 
-                {/* Volunteer Button - Inside navigation but styled differently */}
-                <div className="relative z-10 ml-2">
-                  <button 
-                    onClick={() => setActiveTab('Volunteer')}
-                    className={`flex items-center px-6 py-3 text-sm font-medium transition-all duration-300 rounded-lg mx-1 ${
-                      activeTab === 'Volunteer'
-                        ? 'bg-red-600 text-white shadow-lg'
-                        : 'bg-gradient-to-r from-red-500 to-pink-500 text-white hover:from-red-600 hover:to-pink-600 shadow-md hover:shadow-lg'
-                    }`}
-                  >
-                    <FaUserPlus className="mr-2" />
-                    Volunteer
-                  </button>
-                </div>
-              </div>
+                {/* Animated stars in About section */}
+                {isAboutSection && (
+                  <>
+                    <FaStar className="ml-3 text-yellow-300 text-xs animate-spin-slow" />
+                    <FaStar className="ml-1 text-yellow-300 text-xs animate-spin-slow" style={{ animationDelay: '0.5s' }} />
+                  </>
+                )}
+                
+                {/* Arrow animation */}
+                <FaArrowRight className={`
+                  ml-3 transition-all duration-300 transform
+                  ${activeTab === 'Volunteer' 
+                    ? 'translate-x-0 opacity-100' 
+                    : '-translate-x-2 opacity-0 group-hover:translate-x-0 group-hover:opacity-100'
+                  }
+                `} />
+                
+                
+              </button>
+              <style jsx>{`
+                @keyframes pulse-slow {
+                  0%, 100% { box-shadow: 0 10px 25px rgba(239, 68, 68, 0.3); }
+                  50% { box-shadow: 0 10px 35px rgba(239, 68, 68, 0.5); }
+                }
+                @keyframes spin-slow {
+                  0% { transform: rotate(0deg) scale(1); }
+                  50% { transform: rotate(180deg) scale(1.2); }
+                  100% { transform: rotate(360deg) scale(1); }
+                }
+                @keyframes bounce-slow {
+                  0%, 100% { transform: translateY(0); }
+                  50% { transform: translateY(-5px); }
+                }
+                .animate-pulse-slow {
+                  animation: pulse-slow 2s ease-in-out infinite;
+                }
+                .animate-spin-slow {
+                  animation: spin-slow 3s linear infinite;
+                }
+                .animate-bounce-slow {
+                  animation: bounce-slow 1s ease-in-out infinite;
+                }
+              `}</style>
             </div>
           </div>
 
@@ -136,7 +265,13 @@ const Navbar = () => {
           <div className="md:hidden">
             <button
               onClick={() => setIsOpen(!isOpen)}
-              className="text-gray-700 hover:text-red-600 p-2"
+              className={`
+                p-3 rounded-xl transition-all duration-300
+                ${isAboutSection 
+                  ? 'bg-red-100 text-red-600 hover:bg-red-200' 
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }
+              `}
             >
               {isOpen ? <FaTimes className="text-2xl" /> : <FaBars className="text-2xl" />}
             </button>
@@ -145,44 +280,88 @@ const Navbar = () => {
 
         {/* Mobile Menu */}
         {isOpen && (
-          <div className="md:hidden bg-white border-t border-gray-200 py-4">
-            <div className="space-y-2">
+          <div className={`
+            md:hidden py-4 rounded-2xl mt-2 backdrop-blur-lg
+            ${isAboutSection 
+              ? 'bg-linear-to-b from-red-50/90 via-white/95 to-white backdrop-blur-lg border border-red-200/50' 
+              : 'bg-white/95 backdrop-blur-lg border border-gray-200'
+            }
+            shadow-xl
+          `}>
+            <div className="space-y-2 px-2">
               {menuItems.map((item) => (
                 <button
                   key={item.id}
                   onClick={() => {
-                    setActiveTab(item.name);
+                    handleTabClick(item.name);
                     setIsOpen(false);
                   }}
-                  className={`flex items-center w-full px-4 py-4 text-left rounded-lg transition-colors ${
-                    activeTab === item.name
-                      ? 'bg-red-50 text-red-700 border-l-4 border-red-600'
-                      : 'text-gray-700 hover:bg-red-50 hover:text-red-600'
-                  }`}
+                  className={`
+                    flex items-center w-full px-5 py-4 text-left rounded-xl
+                    transition-all duration-300 relative
+                    ${activeTab === item.name
+                      ? (isAboutSection && item.name === 'About Us'
+                          ? 'bg-linear-to-r from-red-100/80 to-pink-100/80 text-red-700 font-bold border-l-4 border-red-600'
+                          : 'bg-red-50 text-red-700 font-semibold border-l-4 border-red-500'
+                        )
+                      : 'text-gray-700 hover:bg-red-50/50 hover:text-red-600'
+                    }
+                  `}
                 >
-                  <span className="mr-3 text-lg">{item.icon}</span>
+                  <span className={`
+                    mr-4 text-xl
+                    ${item.name === 'About Us' && isAboutSection ? 'text-red-600' : ''}
+                  `}>
+                    {item.icon}
+                  </span>
                   <span className="text-lg font-medium">{item.name}</span>
+                  
+                  {isAboutSection && item.name === 'About Us' && (
+                    <div className="ml-auto flex items-center space-x-2">
+                      <div className="w-2 h-2 bg-red-500 rounded-full animate-ping" />
+                      <span className="text-xs font-bold text-red-600 bg-red-100 px-3 py-1 rounded-full">
+                        ACTIVE
+                      </span>
+                    </div>
+                  )}
                 </button>
               ))}
               
-              {/* Volunteer Button for mobile */}
-              <button 
-                onClick={() => {
-                  setActiveTab('Volunteer');
-                  setIsOpen(false);
-                }}
-                className={`w-full px-4 py-4 text-left rounded-lg flex items-center transition-colors ${
-                  activeTab === 'Volunteer'
-                    ? 'bg-gradient-to-r from-red-500 to-pink-500 text-white'
-                    : 'bg-gradient-to-r from-red-500 to-pink-500 text-white'
-                }`}
-              >
-                <FaUserPlus className="mr-3 text-lg" />
-                <span className="text-lg font-medium">Volunteer</span>
-                <span className="ml-auto bg-white/20 text-white text-xs px-3 py-1 rounded-full">
-                  Join Now
-                </span>
-              </button>
+              {/* Mobile Volunteer Button */}
+              <div className="pt-4 border-t border-red-100">
+                <button 
+                  onClick={() => {
+                    handleTabClick('Volunteer');
+                    setIsOpen(false);
+                  }}
+                  className={`
+                    w-full px-5 py-4 text-left rounded-xl flex items-center
+                    relative overflow-hidden group
+                    ${activeTab === 'Volunteer'
+                      ? 'bg-linear-to-r from-red-600 via-pink-600 to-red-600 text-white'
+                      : 'bg-linear-to-r from-red-500 via-pink-500 to-red-500 text-white'
+                    }
+                    shadow-lg hover:shadow-xl
+                  `}
+                >
+                  {/* Shimmer effect */}
+                  <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+                  
+                  <div className="relative z-10 flex items-center w-full">
+                    <FaUserPlus className="text-2xl mr-4" />
+                    <div className="flex-1">
+                      <div className="text-lg font-bold">BECOME A VOLUNTEER</div>
+                      <div className="text-sm opacity-90">Join our emergency response team</div>
+                    </div>
+                    <div className="flex flex-col items-center">
+                      <div className="text-xs font-bold bg-white/30 px-3 py-1 rounded-full mb-1 animate-pulse">
+                        URGENT NEED
+                      </div>
+                      <FaArrowRight className="group-hover:translate-x-2 transition-transform" />
+                    </div>
+                  </div>
+                </button>
+              </div>
             </div>
           </div>
         )}

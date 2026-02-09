@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { 
   FaHeartbeat, 
   FaMapMarkerAlt, 
@@ -10,24 +10,25 @@ import {
 } from 'react-icons/fa';
 
 // Import local images
-import campPhoto1 from '../assets/';
-import campPhoto2 from '../assets/images/image-22.jpg';
-import campPhoto3 from '../assets/images/images-3.jpg';
-import volunteerPhoto from '../assets/images/volunteer-1.jpg';
-import communityPhoto from '../assets/images/community-1.jpg';
+// import campPhoto1 from 'blood-bank-frontend\src\assets\download-1.jpg';
+// import campPhoto2 from '../assets/';
+// import campPhoto3 from '../assets/images/images-3.jpg';
+// import volunteerPhoto from '../assets/images/volunteer-1.jpg';
+// import communityPhoto from '../assets/images/community-1.jpg';
 
 const AboutUs = () => {
   // Use local images or fallback placeholders
   const images = {
-    camp1: campPhoto1 || 'https://images.unsplash.com/photo-1584036561566-baf8f5f1b144?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-    camp2: campPhoto2 || 'https://images.unsplash.com/photo-1551601651-2a8555f1a136?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-    camp3: campPhoto3 || 'https://images.unsplash.com/photo-1579684385127-1ef15d508118?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-    volunteers: volunteerPhoto || 'https://images.unsplash.com/photo-1559757148-5c350d0d3c56?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-    community: communityPhoto || 'https://images.unsplash.com/photo-1584467735871-8db9ac8c71ee?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'
+    camp1: 'https://images.unsplash.com/photo-1584036561566-baf8f5f1b144?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+    camp2: 'https://images.unsplash.com/photo-1551601651-2a8555f1a136?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+    camp3: 'https://images.unsplash.com/photo-1579684385127-1ef15d508118?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+    volunteers: 'https://images.unsplash.com/photo-1559757148-5c350d0d3c56?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+    community: 'https://images.unsplash.com/photo-1584467735871-8db9ac8c71ee?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'
   };
 
+
   return (
-    <div className="bg-gradient-to-b from-white to-red-50 py-16 md:py-24">
+    <div id="about-section" className="bg-linear-to-b from-white to-red-50 py-16 md:py-24">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Header */}
@@ -61,26 +62,14 @@ const AboutUs = () => {
               </p>
             </div>
 
-            <div className="bg-red-50 rounded-xl p-6">
-              <div className="flex items-center gap-3 mb-4">
-                <FaMapMarkerAlt className="text-red-600 text-xl" />
-                <h3 className="text-xl font-bold text-gray-900">Our Coverage Area</h3>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {['Kolar', 'Bangarapet', 'Malur', 'Mulbagal', 'Srinivaspur', 'Chintamani', 'Bagepalli', 'Gudibanda'].map((area, index) => (
-                  <span key={index} className="bg-white text-red-700 px-3 py-1 rounded-full text-sm shadow-sm">
-                    {area}
-                  </span>
-                ))}
-              </div>
-            </div>
+         
           </div>
 
           <div>
             <img 
               src={images.camp1} 
               alt="MEGA blood donation camp" 
-              className="rounded-2xl shadow-xl w-full h-[400px] object-cover"
+              className="rounded-2xl shadow-xl w-full h-100 object-cover"
             />
           </div>
         </div>
@@ -123,7 +112,7 @@ const AboutUs = () => {
                 alt="Blood donation camp" 
                 className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-300"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-6">
+              <div className="absolute inset-0 bg-linear-to-t from-black/60 to-transparent flex items-end p-6">
                 <div className="text-white">
                   <h3 className="text-xl font-bold mb-2">Regular Camps</h3>
                   <p className="text-sm opacity-90">Monthly blood donation drives</p>
@@ -137,7 +126,7 @@ const AboutUs = () => {
                 alt="MEGA volunteers" 
                 className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-300"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-6">
+              <div className="absolute inset-0 bg-linear-to-t from-black/60 to-transparent flex items-end p-6">
                 <div className="text-white">
                   <h3 className="text-xl font-bold mb-2">Our Volunteers</h3>
                   <p className="text-sm opacity-90">Trained community members</p>
@@ -151,7 +140,7 @@ const AboutUs = () => {
                 alt="Community outreach" 
                 className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-300"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-6">
+              <div className="absolute inset-0 bg-linear-to-t from-black/60 to-transparent flex items-end p-6">
                 <div className="text-white">
                   <h3 className="text-xl font-bold mb-2">Awareness Programs</h3>
                   <p className="text-sm opacity-90">Educating the community</p>
@@ -198,23 +187,7 @@ const AboutUs = () => {
           </div>
         </div>
 
-        {/* CTA */}
-        <div className="text-center">
-          <div className="bg-gradient-to-r from-red-600 to-pink-600 rounded-2xl shadow-2xl p-12 text-white">
-            <h2 className="text-3xl font-bold mb-6">Join Our Mission</h2>
-            <p className="text-xl mb-8 opacity-90 max-w-2xl mx-auto">
-              Help us save more lives in our community. Your donation can make a difference.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <button className="bg-white text-red-600 hover:bg-red-50 px-8 py-4 rounded-xl font-semibold text-lg transition-colors">
-                Become a Donor
-              </button>
-              <button className="bg-transparent border-2 border-white hover:bg-white/20 px-8 py-4 rounded-xl font-semibold text-lg transition-colors">
-                Learn More
-              </button>
-            </div>
-          </div>
-        </div>
+
       </div>
     </div>
   );
