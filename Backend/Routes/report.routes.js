@@ -164,7 +164,7 @@ router.get("/reports/requests" ,protect, authorize('admin','technician'), async 
   }
 });
 
-router.get("/reports/dashboard" ,protect, authorize('admin'), async (req, res) => {
+router.get("/reports/dashboard" ,protect, authorize('admin','technician'), async (req, res) => {
   try {
     const donors = await Donor.countDocuments();
     const donations = await Donation.countDocuments();

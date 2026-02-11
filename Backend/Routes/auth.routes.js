@@ -52,32 +52,49 @@ router.post('/register' ,  checkSchema(createuservalidationschema), async (req, 
 router.post('/login' , async (req, res) => {
     try {
         const { email, password } = req.body;
+        
+        console.log("=================================");
+        console.log("LOGIN ATTEMPT RECEIVED:");
+        console.log("Email:", email);
+        console.log("Password received:", password ? "[PROVIDED]" : "[MISSING]");
+        console.log("=================================");
 
         // Find user
         const user = await Users.findOne({ email });
-
+        
+        console.log("User found:", user ? "YES" : "NO");
+        
         if (!user) {
+            console.log("❌ User not found in database");
             return res.status(401).json({
                 msg: "Invalid credentials"
             });
         }
 
+        console.log("User role from DB:", user.role);
+        console.log("User ID:", user._id);
+
         // Check password
         const isMatch = await user.comparePassword(password);
+        
+        console.log("Password match:", isMatch ? "YES" : "NO");
 
         if (!isMatch) {
+            console.log("❌ Password incorrect");
             return res.status(401).json({
                 msg: "Invalid credentials"
             });
         }
 
         // Generate JWT token
-        const token = generateToken(user._id,user.role);
-        const refreshToken = generateRefreshToken(user._id,user.role)
-        console.log("LOGIN TOKEN:", token);
+        const token = generateToken(user._id, user.role);
+        const refreshToken = generateRefreshToken(user._id, user.role);
+        
+        console.log("✅ Login successful!");
+        console.log("Token generated:", token ? "YES" : "NO");
+        console.log("=================================");
 
-
-        user.refreshToken =refreshToken;
+        user.refreshToken = refreshToken;
         await user.save();
 
         // Send token to client
@@ -88,11 +105,13 @@ router.post('/login' , async (req, res) => {
             user: {
                 id: user._id,
                 name: user.name,
-                email: user.email
+                email: user.email,
+                role: user.role
             }
         });
 
     } catch (error) {
+        console.log("❌ ERROR in login endpoint:");
         console.log(error);
         res.status(500).json({ msg: "Server error" });
     }

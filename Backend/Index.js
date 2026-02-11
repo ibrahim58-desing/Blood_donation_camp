@@ -1,4 +1,5 @@
 import express from "express";
+import cors from 'cors'; 
 import authRoute from './Routes/auth.routes.js'
 import donorRoute from './Routes/donor.routes.js'
 import inventoryRoute from './Routes/inventory.routes.js'
@@ -11,16 +12,16 @@ dotenv.config();
 
 const app = express();
 
+console.log("PORT from .env:", process.env.PORT);
+
 const PORT = process.env.PORT || 3000
 
 app.use(express.json())
 
-// app.use(cors({
-//     origin: "http://localhost:5174",//connects the frontend to backennd
-//     credentials: true//allows cookies to be sent
-
-// }))
-
+app.use(cors({
+    origin: "http://localhost:5173", // Your Vite frontend port
+    credentials: true
+}));
 mongoose.connect('mongodb://localhost/BloodDonationCamp')
     .then(() => console.log("db is fucking connected"))
     .catch((err) => console.log(`Error:${err}`))

@@ -101,54 +101,7 @@ const AboutUs = () => {
           </div>
         </div>
 
-        {/* Photo Gallery */}
-        <div className="mb-20">
-          <h2 className="text-3xl font-bold text-gray-900 text-center mb-12">Our Work in Pictures</h2>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="relative rounded-2xl overflow-hidden shadow-xl group">
-              <img 
-                src={images.camp2} 
-                alt="Blood donation camp" 
-                className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-300"
-              />
-              <div className="absolute inset-0 bg-linear-to-t from-black/60 to-transparent flex items-end p-6">
-                <div className="text-white">
-                  <h3 className="text-xl font-bold mb-2">Regular Camps</h3>
-                  <p className="text-sm opacity-90">Monthly blood donation drives</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="relative rounded-2xl overflow-hidden shadow-xl group">
-              <img 
-                src={images.volunteers} 
-                alt="MEGA volunteers" 
-                className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-300"
-              />
-              <div className="absolute inset-0 bg-linear-to-t from-black/60 to-transparent flex items-end p-6">
-                <div className="text-white">
-                  <h3 className="text-xl font-bold mb-2">Our Volunteers</h3>
-                  <p className="text-sm opacity-90">Trained community members</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="relative rounded-2xl overflow-hidden shadow-xl group">
-              <img 
-                src={images.community} 
-                alt="Community outreach" 
-                className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-300"
-              />
-              <div className="absolute inset-0 bg-linear-to-t from-black/60 to-transparent flex items-end p-6">
-                <div className="text-white">
-                  <h3 className="text-xl font-bold mb-2">Awareness Programs</h3>
-                  <p className="text-sm opacity-90">Educating the community</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+        
 
         {/* How We Work */}
         <div className="bg-white rounded-2xl shadow-xl p-8 mb-20">

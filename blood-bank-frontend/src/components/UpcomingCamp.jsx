@@ -185,42 +185,7 @@ const UpcomingCamps = () => {
           ))}
         </div>
 
-        {/* Additional Information */}
-        <div className="bg-white rounded-2xl shadow-xl p-8 mb-12">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center">Why Donate Blood?</h2>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="text-center">
-              <div className="bg-red-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                <FaTint className="text-2xl text-red-600" />
-              </div>
-              <h3 className="font-bold text-gray-900 mb-2">One Donation, Three Lives</h3>
-              <p className="text-gray-600 text-sm">
-                A single blood donation can save up to three lives through different blood components
-              </p>
-            </div>
-
-            <div className="text-center">
-              <div className="bg-red-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                <FaHospital className="text-2xl text-red-600" />
-              </div>
-              <h3 className="font-bold text-gray-900 mb-2">Local Impact</h3>
-              <p className="text-gray-600 text-sm">
-                Your donation stays in Kolar district, helping neighbors and community members
-              </p>
-            </div>
-
-            <div className="text-center">
-              <div className="bg-red-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                <FaUserMd className="text-2xl text-red-600" />
-              </div>
-              <h3 className="font-bold text-gray-900 mb-2">Health Benefits</h3>
-              <p className="text-gray-600 text-sm">
-                Regular blood donation reduces risk of heart disease and burns calories
-              </p>
-            </div>
-          </div>
-        </div>
+       
 
         {/* CTA */}
        
