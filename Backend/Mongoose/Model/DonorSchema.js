@@ -39,7 +39,7 @@ const DonorSchema = new mongoose.Schema({
         type: Boolean,
         default: null
     }
-    },{ timeseries: true });
+    },{ timestamps: true });
 
 
 export const Donor = mongoose.model("Donor_data",DonorSchema)

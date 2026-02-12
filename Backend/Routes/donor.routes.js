@@ -116,12 +116,27 @@ router.post("/donors", protect, authorize('admin','technician'),
 
         const check2 = matchedData(req)
 
-        try {
-            const newdonor = new Donor({
-                ...check2,
-                donor_code: generateDonorCode()
-            })
+        const donorData = {
+            ...check2,
+            donor_code: generateDonorCode()
+        };
 
+        // Convert date_of_birth from DD/MM/YYYY to Date
+        if (donorData.date_of_birth) {
+            const [day, month, year] = donorData.date_of_birth.split('/');
+            donorData.date_of_birth = new Date(`${year}-${month}-${day}`);
+        }
+
+        // Convert last_donation from DD/MM/YYYY to Date (if provided)
+        if (donorData.last_donation) {
+            const [day, month, year] = donorData.last_donation.split('/');
+            donorData.last_donation = new Date(`${year}-${month}-${day}`);
+        }
+
+
+        try {
+            // ✅ FIXED: Use donorData, not check2!
+            const newdonor = new Donor(donorData);
             await newdonor.save();
             res.status(201).json({ msg: "User is created" });
         }

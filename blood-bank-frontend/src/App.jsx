@@ -27,7 +27,7 @@ function App() {
         
         {/* Login Page Route */}
         <Route path="/login" element={<Login />} />
-        <Route path="/Donor/register" element={<DonorRegistration/>}/>
+        <Route path="/donors" element={<DonorRegistration/>}/>
         <Route path="/Dashboard" element={<Dashboard/>}/>
       </Routes>
     </Router>

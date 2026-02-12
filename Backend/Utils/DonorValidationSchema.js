@@ -47,9 +47,7 @@ export const donorvalidationschema = {
         notEmpty: {
             errorMessage: "Date of birth is required"
         },
-        isDate: {
-            errorMessage: "Invalid date of birth"
-        }
+        
     },
     address: {
         notEmpty: {
@@ -59,11 +57,23 @@ export const donorvalidationschema = {
             errorMessage: "Enter only string"
         }
     },
-    last_donation: {
-        optional: { nullable: true },
-        isDate: {
-            errorMessage: "Invalid last donation date"
-        }
+   last_donation: {
+        optional: true,  // Simply make it optional
+        // custom: {
+        //     options: (value) => {
+        //         // If no value provided, it's valid
+        //         if (!value) return true;
+                
+        //         // Check if it matches DD/MM/YYYY format
+        //         const pattern = /^(\d{2})\/(\d{2})\/(\d{4})$/;
+        //         if (!pattern.test(value)) return false;
+                
+        //         const [day, month, year] = value.split('/');
+        //         const date = new Date(`${year}-${month}-${day}`);
+        //         return !isNaN(date.getTime());
+        //     },
+        //     errorMessage: "Invalid date format. Use DD/MM/YYYY"
+        // }
     },
 
     total_donations: {

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import DonorRegistration from './DonorRegistration.jsx';
 import axios from 'axios';
 import {
   FaTachometerAlt,
@@ -75,14 +76,14 @@ const Dashboard = () => {
     // Check authentication and role
     const storedUser = localStorage.getItem('user');
     const token = localStorage.getItem('token');
-    
+
     if (!storedUser || !token) {
       navigate('/login');
       return;
     }
 
     const userData = JSON.parse(storedUser);
-    
+
     // Allow both admin and technician
     if (userData.role !== 'admin' && userData.role !== 'technician') {
       navigate('/');
@@ -149,7 +150,7 @@ const Dashboard = () => {
   // Prepare chart data
   const prepareDonationsChartData = () => {
     if (!donationsData?.monthly_stats) return null;
-    
+
     return {
       labels: donationsData.monthly_stats.map(stat => stat.month),
       datasets: [
@@ -173,7 +174,7 @@ const Dashboard = () => {
 
   const prepareInventoryChartData = () => {
     if (!inventoryData?.blood_group_summary) return null;
-    
+
     return {
       labels: inventoryData.blood_group_summary.map(item => item.blood_type),
       datasets: [
@@ -192,11 +193,11 @@ const Dashboard = () => {
 
   const prepareRequestsChartData = () => {
     if (!requestsData?.status_summary) return null;
-    
+
     const pending = requestsData.status_summary.find(s => s.status === 'pending')?.count || 0;
     const fulfilled = requestsData.status_summary.find(s => s.status === 'fulfilled')?.count || 0;
     const cancelled = requestsData.status_summary.find(s => s.status === 'cancelled')?.count || 0;
-    
+
     return {
       labels: ['Pending', 'Fulfilled', 'Cancelled'],
       datasets: [
@@ -270,25 +271,24 @@ const Dashboard = () => {
                   MEGA <span className="text-red-600">Blood Bank</span>
                 </h1>
                 <div className="flex items-center gap-2">
-                  <div className={`px-2 py-0.5 rounded-full text-xs font-medium ${
-                    userRole === 'admin' 
-                      ? 'bg-purple-100 text-purple-700' 
+                  <div className={`px-2 py-0.5 rounded-full text-xs font-medium ${userRole === 'admin'
+                      ? 'bg-purple-100 text-purple-700'
                       : 'bg-blue-100 text-blue-700'
-                  }`}>
+                    }`}>
                     {userRole === 'admin' ? 'Administrator' : 'Technician'}
                   </div>
                   <span className="text-sm text-gray-600">| Dashboard</span>
                 </div>
               </div>
             </div>
-            
+
             <div className="flex items-center gap-6">
               {/* User Info */}
               <div className="text-right hidden md:block">
                 <p className="font-semibold text-gray-900">{user?.name}</p>
                 <p className="text-sm text-gray-600">{user?.email}</p>
               </div>
-              
+
               {/* Logout Button */}
               <button
                 onClick={handleLogout}
@@ -315,44 +315,40 @@ const Dashboard = () => {
         <div className="flex space-x-4 mb-8 overflow-x-auto pb-2">
           <button
             onClick={() => setActiveTab('overview')}
-            className={`flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition-all whitespace-nowrap ${
-              activeTab === 'overview'
+            className={`flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition-all whitespace-nowrap ${activeTab === 'overview'
                 ? 'bg-linear-to-r from-red-600 to-pink-600 text-white shadow-lg'
                 : 'bg-white text-gray-700 hover:bg-red-50'
-            }`}
+              }`}
           >
             <FaTachometerAlt />
             Overview
           </button>
           <button
             onClick={() => setActiveTab('donations')}
-            className={`flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition-all whitespace-nowrap ${
-              activeTab === 'donations'
+            className={`flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition-all whitespace-nowrap ${activeTab === 'donations'
                 ? 'bg-linear-to-r from-red-600 to-pink-600 text-white shadow-lg'
                 : 'bg-white text-gray-700 hover:bg-red-50'
-            }`}
+              }`}
           >
             <FaHistory />
             Donations
           </button>
           <button
             onClick={() => setActiveTab('inventory')}
-            className={`flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition-all whitespace-nowrap ${
-              activeTab === 'inventory'
+            className={`flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition-all whitespace-nowrap ${activeTab === 'inventory'
                 ? 'bg-linear-to-r from-red-600 to-pink-600 text-white shadow-lg'
                 : 'bg-white text-gray-700 hover:bg-red-50'
-            }`}
+              }`}
           >
             <FaBoxes />
             Inventory
           </button>
           <button
             onClick={() => setActiveTab('requests')}
-            className={`flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition-all whitespace-nowrap ${
-              activeTab === 'requests'
+            className={`flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition-all whitespace-nowrap ${activeTab === 'requests'
                 ? 'bg-linear-to-r from-red-600 to-pink-600 text-white shadow-lg'
                 : 'bg-white text-gray-700 hover:bg-red-50'
-            }`}
+              }`}
           >
             <FaClipboardList />
             Blood Requests
@@ -366,12 +362,16 @@ const Dashboard = () => {
             <span className="font-medium text-gray-900">Quick Actions:</span>
           </div>
           <div className="flex flex-wrap gap-3">
-            <button 
-              onClick={() => navigate('/donors/register')}
-              className="flex items-center gap-2 bg-linear-to-r from-green-500 to-emerald-500 text-white px-4 py-2 rounded-lg text-sm font-medium hover:from-green-600 hover:to-emerald-600 transition-all shadow-md hover:shadow-lg"
+            <button
+              onClick={() => navigate('/donors')}
+              className="flex items-center gap-2 bg-linear-to-r from-green-500 to-emerald-500 text-white px-4 py-2 rounded-lg text-sm font-medium hover:from-green-600 hover:to-emerald-600 transition-all shadow-md hover:shadow-lg transform hover:scale-105"
+              title="Register a new blood donor"
             >
-              <FaUserPlus />
-              Register Donor
+              <FaUserPlus className="text-lg" />
+              <span>Register Donor</span>
+              <span className="hidden lg:inline bg-white/20 px-2 py-0.5 rounded-full text-xs">
+                New
+              </span>
             </button>
             <button className="flex items-center gap-2 bg-linear-to-r from-blue-500 to-cyan-500 text-white px-4 py-2 rounded-lg text-sm font-medium hover:from-blue-600 hover:to-cyan-600 transition-all shadow-md hover:shadow-lg">
               <FaSyringe />
@@ -457,13 +457,13 @@ const Dashboard = () => {
                 <div className="flex justify-between items-center mb-4">
                   <h3 className="text-lg font-bold text-gray-900">Monthly Donations</h3>
                   <div className="flex gap-2">
-                    <button 
+                    <button
                       onClick={() => setDateRange('month')}
                       className={`px-3 py-1 text-xs rounded-lg ${dateRange === 'month' ? 'bg-red-100 text-red-700' : 'bg-gray-100'}`}
                     >
                       Monthly
                     </button>
-                    <button 
+                    <button
                       onClick={() => setDateRange('year')}
                       className={`px-3 py-1 text-xs rounded-lg ${dateRange === 'year' ? 'bg-red-100 text-red-700' : 'bg-gray-100'}`}
                     >
@@ -530,11 +530,10 @@ const Dashboard = () => {
                             </span>
                           </td>
                           <td className="px-4 py-3">
-                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                              isCritical 
-                                ? 'bg-red-100 text-red-700' 
+                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${isCritical
+                                ? 'bg-red-100 text-red-700'
                                 : 'bg-green-100 text-green-700'
-                            }`}>
+                              }`}>
                               {isCritical ? 'Critical' : 'Normal'}
                             </span>
                           </td>
