@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import DonorRegistration from './DonorRegistration.jsx';
+import DonorRegistration from './donors/DonorRegistration.jsx';
 import axios from 'axios';
 import {
   FaTachometerAlt,

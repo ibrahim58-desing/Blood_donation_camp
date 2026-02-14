@@ -197,7 +197,7 @@ router.delete("/donors/:donor_code", protect, authorize('admin'), async (req, re
 
 })
 
-router.get("/donors/:donor_code/donation", protect, authorize('admin','technician'), async (req, res) => {
+router.get("/donors/:donor_code/donations", protect, authorize('admin','technician'), async (req, res) => {
     try {
         const donor = await Donor.findOne({ donor_code:req.params.donor_code })
         if (!donor){
