@@ -84,7 +84,6 @@ const Sidebar = ({ collapsed, setCollapsed, userRole }) => {
         { icon: <FaPlusCircle />, label: 'Add Blood Unit', path: '/dashboard/inventory/add', roles: ['admin', 'technician'] },
         { icon: <FaExclamationTriangle />, label: 'Expiring Units', path: '/dashboard/inventory/expiring', roles: ['admin', 'technician'] },
         { icon: <FaTrashAlt />, label: 'Discard Expired', path: '/dashboard/inventory/discard', roles: ['admin'] },
-        { icon: <FaChartBar />, label: 'Inventory Summary', path: '/dashboard/inventory/summary', roles: ['admin', 'technician'] }
       ]
     },
     {
@@ -94,9 +93,7 @@ const Sidebar = ({ collapsed, setCollapsed, userRole }) => {
       roles: ['admin', 'technician'],
       submenu: [
         { icon: <FaClipboardList />, label: 'All Requests', path: '/dashboard/requests', roles: ['admin', 'technician'] },
-        { icon: <FaClock />, label: 'Pending Requests', path: '/dashboard/requests/pending', roles: ['admin', 'technician'] },
-        { icon: <FaCheckCircle />, label: 'Fulfilled Requests', path: '/dashboard/requests/fulfilled', roles: ['admin', 'technician'] },
-        { icon: <FaHandsHelping />, label: 'Requestors', path: '/dashboard/requestors', roles: ['admin', 'technician'] }
+       
       ]
     },
     {

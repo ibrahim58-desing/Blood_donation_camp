@@ -48,24 +48,184 @@ router.get('/inventory/summary', async (req, res) => {
 
 })
 
-router.get('/inventory/expiring',protect, authorize('admin','technician'), async (req, res) => {
+router.get('/inventory/expiring', protect, authorize('admin', 'technician'), async (req, res) => {
     try {
-        const today = new Date()
-        const expire = new Date()
-        expire.setDate(today.getDate() + 7)
+        const today = new Date();
+        today.setUTCHours(0, 0, 0, 0); // Set to UTC start of day
+        
+        const expire = new Date(today);
+        expire.setUTCDate(today.getUTCDate() + 7);
+        expire.setUTCHours(23, 59, 59, 999); // Set to UTC end of 7th day
+
+        console.log('Searching for expiring units:');
+        console.log('From:', today.toISOString());
+        console.log('To:', expire.toISOString());
 
         const expiring = await Inventory.find({
             status: "available",
-            expiry_date: { $gte: today, $lte: expire }
-        })
+            expiry_date: { 
+                $gte: today, 
+                $lte: expire 
+            }
+        }).populate("donor_id", "donor_code name");
 
-        res.json(expiring)
+        console.log(`Found ${expiring.length} expiring units`);
+        
+        res.json(expiring);
 
     } catch (err) {
-
+        console.error('Error in expiring units route:', err);
         res.status(500).json({ error: err.message });
     }
-})
+});
+
+// TEMPORARY DEBUG ROUTE - Remove after testing
+router.get('/inventory/debug/expiring', protect, authorize('admin', 'technician'), async (req, res) => {
+    try {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        
+        const nextWeek = new Date(today);
+        nextWeek.setDate(today.getDate() + 7);
+        nextWeek.setHours(23, 59, 59, 999);
+
+        // Get all units with their status and expiry
+        const allUnits = await Inventory.find({})
+            .populate("donor_id", "donor_code name")
+            .sort({ expiry_date: 1 });
+
+        const stats = {
+            total: allUnits.length,
+            byStatus: {},
+            byBloodType: {},
+            expiringStats: {
+                today: 0,
+                thisWeek: 0,
+                nextWeek: 0,
+                expired: 0
+            }
+        };
+
+        allUnits.forEach(unit => {
+            // Count by status
+            stats.byStatus[unit.status] = (stats.byStatus[unit.status] || 0) + 1;
+            
+            // Count by blood type
+            stats.byBloodType[unit.blood_type] = (stats.byBloodType[unit.blood_type] || 0) + 1;
+            
+            // Check expiry
+            const expiryDate = new Date(unit.expiry_date);
+            expiryDate.setHours(0, 0, 0, 0);
+            
+            if (expiryDate < today) {
+                stats.expiringStats.expired++;
+            } else if (expiryDate.getTime() === today.getTime()) {
+                stats.expiringStats.today++;
+                stats.expiringStats.thisWeek++;
+            } else if (expiryDate <= nextWeek) {
+                stats.expiringStats.thisWeek++;
+            } else {
+                stats.expiringStats.nextWeek++;
+            }
+        });
+
+        // Get units that should be expiring
+        const expiringUnits = allUnits.filter(unit => {
+            const expiryDate = new Date(unit.expiry_date);
+            expiryDate.setHours(0, 0, 0, 0);
+            return unit.status === 'available' && 
+                   expiryDate >= today && 
+                   expiryDate <= nextWeek;
+        });
+
+        res.json({
+            message: 'Debug information',
+            stats,
+            expiringCount: expiringUnits.length,
+            expiringUnits: expiringUnits.map(u => ({
+                unit_number: u.unit_number,
+                blood_type: u.blood_type,
+                status: u.status,
+                expiry_date: u.expiry_date,
+                days_until_expiry: Math.ceil((new Date(u.expiry_date) - today) / (1000 * 60 * 60 * 24))
+            })),
+            allUnits: allUnits.map(u => ({
+                unit_number: u.unit_number,
+                blood_type: u.blood_type,
+                status: u.status,
+                expiry_date: u.expiry_date
+            }))
+        });
+
+    } catch (err) {
+        console.error('Debug route error:', err);
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// TEMPORARY TEST SCRIPT - Run this once to create test data
+router.post('/inventory/test/create-expiring', protect, authorize('admin'), async (req, res) => {
+    try {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        
+        // Find a donor to use for test units
+        const donor = await Donor.findOne();
+        if (!donor) {
+            return res.status(404).json({ error: "No donor found. Create a donor first." });
+        }
+
+        // Create test units with different expiry dates
+        const testUnits = [
+            {
+                unit_number: `TEST-EXP-${Date.now()}-1`,
+                donor_id: donor._id,
+                blood_type: donor.blood_type,
+                components: 'whole_blood',
+                volume_ml: 450,
+                collection_date: new Date(today.getTime() - 10 * 24 * 60 * 60 * 1000), // 10 days ago
+                expiry_date: new Date(today.getTime() + 2 * 24 * 60 * 60 * 1000), // 2 days from now
+                status: 'available',
+                storage_location: 'TEST-A1'
+            },
+            {
+                unit_number: `TEST-EXP-${Date.now()}-2`,
+                donor_id: donor._id,
+                blood_type: donor.blood_type,
+                components: 'rbc',
+                volume_ml: 350,
+                collection_date: new Date(today.getTime() - 15 * 24 * 60 * 60 * 1000), // 15 days ago
+                expiry_date: new Date(today.getTime() + 5 * 24 * 60 * 60 * 1000), // 5 days from now
+                status: 'available',
+                storage_location: 'TEST-B2'
+            },
+            {
+                unit_number: `TEST-EXP-${Date.now()}-3`,
+                donor_id: donor._id,
+                blood_type: donor.blood_type,
+                components: 'plasma',
+                volume_ml: 250,
+                collection_date: new Date(today.getTime() - 20 * 24 * 60 * 60 * 1000), // 20 days ago
+                expiry_date: new Date(today.getTime() + 1 * 24 * 60 * 60 * 1000), // 1 day from now
+                status: 'available',
+                storage_location: 'TEST-C3'
+            }
+        ];
+
+        const created = await Inventory.insertMany(testUnits);
+        
+        console.log('Created test expiring units:', created);
+
+        res.json({
+            message: 'Test expiring units created',
+            units: created
+        });
+
+    } catch (err) {
+        console.error('Error creating test units:', err);
+        res.status(500).json({ error: err.message });
+    }
+});
 
 router.post('/inventory/discard' , protect, authorize('admin'), async (req, res) => {
 
