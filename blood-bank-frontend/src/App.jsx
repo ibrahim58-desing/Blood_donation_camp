@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Navbar from './components/Navbar.jsx';
 import HeroSection from './components/HeroSection.jsx';
 import AboutUs from './components/AboutUs.jsx';
@@ -23,17 +23,10 @@ import BloodUnitList from './components/inventory/BloodUnitList.jsx';
 import AddBloodUnit from './components/inventory/AddBloodUnit.jsx';
 import ExpiringUnits from './components/inventory/ExpiringUnits.jsx';
 import DiscardExpired from './components/inventory/DiscardExpired.jsx';
-// import InventorySummary from './components/inventory/InventorySummary.jsx';
 
 // Request Components
-import BloodRequestList from './components/requests/BloodRequestList.jsx'
-// import BloodRequestList from './components/requests/BloodRequestList.jsx';
-// import RequestorList from './components/requests/RequestorList.jsx';
-
-// Report Components
-// import DonationReports from './components/reports/DonationReports.jsx';
-// import InventoryReports from './components/reports/InventoryReports.jsx';
-// import RequestReports from './components/reports/RequestReports.jsx';
+import BloodRequestList from './components/requests/BloodRequestList.jsx';
+import RequestRegistration from './components/requests/RequestRegistration.jsx';
 
 function App() {
   return (
@@ -51,14 +44,25 @@ function App() {
           </>
         } />
 
+        {/* PUBLIC REQUEST ROUTE - NO LOGIN REQUIRED */}
+        <Route path="/requests/new" element={
+          <>
+            <Navbar />
+            <div className="pt-20 min-h-screen bg-gray-50">
+              <RequestRegistration />
+            </div>
+            <Footer />
+          </>
+        } />
+
         {/* Login Page Route */}
         <Route path="/login" element={<Login />} />
 
-        {/* NEW DASHBOARD LAYOUT WITH NESTED ROUTES - REPLACES OLD DASHBOARD */}
+        {/* Dashboard Layout - Protected Routes */}
         <Route path="/dashboard" element={<DashboardLayout />}>
-          {/* Overview - Default route */}
+          {/* Overview */}
           <Route index element={<DashboardHome />} />
-
+          
           {/* Donor Management Routes */}
           <Route path="donors" element={<DonorList />} />
           <Route path="donors/register" element={<DonorRegistration />} />
@@ -67,29 +71,20 @@ function App() {
           <Route path="donors/record-donation" element={<RecordDonation />} />
 
           {/* Inventory Management Routes */}
-          <Route path="inventory/add" element={<AddBloodUnit />} />
           <Route path="inventory" element={<BloodUnitList />} />
+          <Route path="inventory/add" element={<AddBloodUnit />} />
           <Route path="inventory/expiring" element={<ExpiringUnits />} />
-          
-           <Route path="inventory/discard" element={<DiscardExpired />} />
-          {/*<Route path="inventory/summary" element={<InventorySummary />} /> */}
+          <Route path="inventory/discard" element={<DiscardExpired />} />
 
-          {/* Request Management Routes */}
+          {/* Request Management Routes - Inside Dashboard (for staff) */}
           <Route path="requests" element={<BloodRequestList />} />
-           {/*<Route path="requests/pending" element={<BloodRequestList status="pending" />} />
-          <Route path="requests/fulfilled" element={<BloodRequestList status="fulfilled" />} />
-          <Route path="requestors" element={<RequestorList />} /> */}
-
-          {/* Reports Routes */}
-          {/* <Route path="reports/donations" element={<DonationReports />} />
-          <Route path="reports/inventory" element={<InventoryReports />} />
-          <Route path="reports/requests" element={<RequestReports />} /> */}
         </Route>
 
-        {/* Optional: Redirect old /Dashboard to new /dashboard */}
-        {/* <Route path="/Dashboard" element={<Navigate to="/dashboard" replace />} />
-        <Route path="/donors" element={<Navigate to="/dashboard/donors" replace />} /> */}
-
+        {/* ✅ REDIRECTS - Add this section */}
+        <Route path="/request" element={<Navigate to="/requests/new" replace />} />
+        <Route path="/requests" element={<Navigate to="/requests/new" replace />} />
+        <Route path="/Dashboard" element={<Navigate to="/dashboard" replace />} />
+        <Route path="/donors" element={<Navigate to="/dashboard/donors" replace />} />
       </Routes>
     </Router>
   );

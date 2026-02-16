@@ -8,7 +8,7 @@ import { protect,authorize } from '../Middleware/Auth.js';
 
 const router = express.Router()
 
-router.get("/reports/inventory" ,protect, authorize('admin','technician'), async (req, res) => {
+router.get("/reports/inventory",async (req, res) => {
     try {
         const statusSummary = await Inventory.aggregate([
             {

@@ -96,19 +96,7 @@ const Sidebar = ({ collapsed, setCollapsed, userRole }) => {
        
       ]
     },
-    {
-      key: 'reports',
-      icon: <FaFileAlt />,
-      label: 'Reports & Analytics',
-      roles: ['admin', 'technician'],
-      submenu: [
-        { icon: <FaHistory />, label: 'Donation Reports', path: '/dashboard/reports/donations', roles: ['admin', 'technician'] },
-        { icon: <FaBoxes />, label: 'Inventory Reports', path: '/dashboard/reports/inventory', roles: ['admin', 'technician'] },
-        { icon: <FaClipboardList />, label: 'Request Reports', path: '/dashboard/reports/requests', roles: ['admin', 'technician'] },
-        { icon: <FaChartBar />, label: 'Custom Reports', path: '/dashboard/reports/custom', roles: ['admin'] },
-        { icon: <FaDownload />, label: 'Export Data', path: '/dashboard/reports/export', roles: ['admin', 'technician'] }
-      ]
-    },
+    
    
   ];
 

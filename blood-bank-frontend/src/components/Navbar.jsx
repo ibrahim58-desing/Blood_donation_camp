@@ -29,10 +29,10 @@ const Navbar = () => {
   const [userRole, setUserRole] = useState('');
   const observerRef = useRef(null);
 
-  // Conditionally show Login or Dashboard based on auth status
+  // ✅ FIXED: Changed path from '/request' to '/requests/new'
   const menuItems = [
     { id: 1, name: 'Home', icon: <FaHome />, path: '/' },
-    { id: 2, name: 'Request', icon: <FaHandsHelping />, path: '/request' },
+    { id: 2, name: 'Request', icon: <FaHandsHelping />, path: '/requests/new' }, // CHANGED THIS LINE
     { id: 3, name: 'About Us', icon: <FaInfoCircle />, path: '/#about-section' },
     ...(isLoggedIn 
       ? [{ id: 4, name: 'Dashboard', icon: <FaTachometerAlt />, path: '/dashboard' }]
