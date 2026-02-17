@@ -147,7 +147,7 @@ const HeroSection = () => {
           backgroundImage: 'url("https://images.unsplash.com/photo-1588614959060-4d144f28b207?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2072&q=80")',
         }}
       >
-        <div className="absolute inset-0 bg-gradient-to-r from-red-900/70 via-red-800/60 to-pink-800/50"></div>
+        <div className="absolute inset-0 bg-linear-to-r from-red-900/70 via-red-800/60 to-pink-800/50"></div>
       </div>
 
       {/* Content */}
@@ -289,7 +289,7 @@ const HeroSection = () => {
 
                 {/* Summary Stats */}
                 <div className="mt-8 pt-6 border-t border-gray-200">
-                  <div className="text-center p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl">
+                  <div className="text-center p-4 bg-linear-to-r from-blue-50 to-indigo-50 rounded-xl">
                     <div className="text-2xl font-bold text-blue-700">{totalUnits}</div>
                     <div className="text-gray-600">Total Units Available</div>
                   </div>
@@ -301,9 +301,9 @@ const HeroSection = () => {
 
         {/* Frequent Blood Donor Recognition Section */}
         <div className="max-w-6xl mx-auto">
-          <div className="bg-gradient-to-br from-white to-red-50 rounded-2xl shadow-2xl p-6 md:p-8 border border-red-100">
+          <div className="bg-linear-to-br from-white to-red-50 rounded-2xl shadow-2xl p-6 md:p-8 border border-red-100">
             <div className="text-center mb-8">
-              <div className="inline-flex items-center gap-2 bg-gradient-to-r from-red-600 to-pink-600 text-white px-4 py-2 rounded-full text-sm font-bold mb-4">
+              <div className="inline-flex items-center gap-2 bg-linear-to-r from-red-600 to-pink-600 text-white px-4 py-2 rounded-full text-sm font-bold mb-4">
                 <FaAward className="text-yellow-300" />
                 <span>Annual Recognition 2023-2024</span>
               </div>
@@ -325,7 +325,7 @@ const HeroSection = () => {
                     key={donor.rank}
                     className="bg-white rounded-xl p-4 shadow-sm border border-red-100 flex items-center gap-4 hover:shadow-md transition-shadow hover:scale-[1.02] transform duration-300"
                   >
-                    <div className="text-xl font-bold text-white w-10 h-10 flex items-center justify-center bg-gradient-to-r from-red-500 to-pink-500 rounded-full">
+                    <div className="text-xl font-bold text-white w-10 h-10 flex items-center justify-center bg-linear-to-r from-red-500 to-pink-500 rounded-full">
                       {donor.rank}
                     </div>
                     
@@ -349,19 +349,8 @@ const HeroSection = () => {
               })}
             </div>
 
-            {/* Call to Action */}
-            <div className="text-center">
-              <p className="text-gray-700 mb-4">
-                Be a hero. Donate blood today.
-              </p>
-              <button 
-                onClick={handleRegisterDonor}
-                className="inline-flex items-center gap-3 bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 text-white px-8 py-3 rounded-xl font-bold transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 transform"
-              >
-                <FaUserMd />
-                Register as a Donor
-              </button>
-            </div>
+           
+            
           </div>
         </div>
       </div>

@@ -5,6 +5,9 @@ import donorRoute from './Routes/donor.routes.js'
 import inventoryRoute from './Routes/inventory.routes.js'
 import requestRoutes from './Routes/request.routes.js'
 import reportRoutes from './Routes/report.routes.js'
+import volunteerRoutes from './Routes/volunteer.routes.js';
+import campRoutes from './Routes/Camp.routes.js';
+import './Corns/volunteerReminderCron.js';
 import mongoose from "mongoose";
 import './Corns/InventoryExpiryCron.js'
 import dotenv from "dotenv";
@@ -35,6 +38,10 @@ app.use('/api',inventoryRoute)
 app.use('/api',requestRoutes)
 
 app.use('/api',reportRoutes)
+
+app.use('/api/volunteers', volunteerRoutes);
+
+app.use('/api/camps', campRoutes);
  
 app.listen((PORT), () => {
     console.log("The server stared hearing");
