@@ -6,6 +6,8 @@ import GalleryHighlights from './components/Gallery.jsx';
 import UpcomingCamps from './components/UpcomingCamp.jsx';
 import Footer from './components/Footer.jsx';
 import Login from './components/Login.jsx';
+import Gallery from './components/Gallery_2.jsx';
+import AboutUs_2 from './components/AboutUs_2';
 
 // Dashboard Layout & Components
 import DashboardLayout from './components/dashboard/DashboardLayout.jsx';
@@ -23,6 +25,12 @@ import BloodUnitList from './components/inventory/BloodUnitList.jsx';
 import AddBloodUnit from './components/inventory/AddBloodUnit.jsx';
 import ExpiringUnits from './components/inventory/ExpiringUnits.jsx';
 import DiscardExpired from './components/inventory/DiscardExpired.jsx';
+
+// volunteer Components
+import VolunteerRegistration from './components/volunteers/VolunteerRegistration';
+import VolunteerList from './components/volunteers/VolunteerList';
+import VolunteerDetails from './components/volunteers/VolunteerDetails';
+import CampList from './components/volunteers/CampList';
 
 // Request Components
 import BloodRequestList from './components/requests/BloodRequestList.jsx';
@@ -44,6 +52,35 @@ function App() {
           </>
         } />
 
+        {/* // Add this route with your other main website routes */}
+        <Route path="/gallery" element={
+          <>
+            <Navbar />
+            <Gallery />
+            <Footer />
+          </>
+        } />
+
+        <Route path="/about" element={
+          <>
+            <Navbar />
+            <AboutUs_2 />
+            <Footer />
+          </>
+        } />
+
+        {/* ✅ PUBLIC VOLUNTEER REGISTRATION - NO LOGIN REQUIRED */}
+        <Route path="/volunteer/register" element={
+          <>
+            <Navbar />
+            <div className="pt-20 min-h-screen bg-gray-50">
+              <VolunteerRegistration />
+            </div>
+            <Footer />
+          </>
+        } />
+
+
         {/* PUBLIC REQUEST ROUTE - NO LOGIN REQUIRED */}
         <Route path="/requests/new" element={
           <>
@@ -62,7 +99,7 @@ function App() {
         <Route path="/dashboard" element={<DashboardLayout />}>
           {/* Overview */}
           <Route index element={<DashboardHome />} />
-          
+
           {/* Donor Management Routes */}
           <Route path="donors" element={<DonorList />} />
           <Route path="donors/register" element={<DonorRegistration />} />
@@ -75,6 +112,11 @@ function App() {
           <Route path="inventory/add" element={<AddBloodUnit />} />
           <Route path="inventory/expiring" element={<ExpiringUnits />} />
           <Route path="inventory/discard" element={<DiscardExpired />} />
+
+          {/* ✅ VOLUNTEER MANAGEMENT ROUTES - PROTECTED (INSIDE DASHBOARD) */}
+          <Route path="volunteers" element={<VolunteerList />} />        {/* /dashboard/volunteers */}
+          <Route path="volunteers/:id" element={<VolunteerDetails />} /> {/* /dashboard/volunteers/123 */}
+          <Route path="camps" element={<CampList />} />
 
           {/* Request Management Routes - Inside Dashboard (for staff) */}
           <Route path="requests" element={<BloodRequestList />} />

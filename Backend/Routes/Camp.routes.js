@@ -51,7 +51,7 @@ router.get('/', protect, authorize('admin', 'technician'), async (req, res) => {
 });
 
 // 3. GET upcoming camps
-router.get('/upcoming', protect, authorize('admin', 'technician'), async (req, res) => {
+router.get('/upcoming', async (req, res) => {
     try {
         const today = new Date();
         const camps = await Camp.find({

@@ -28,7 +28,10 @@ import {
   FaDownload,
   FaPrint,
   FaUserCog,
-  FaSignOutAlt
+  FaSignOutAlt,
+  FaHandHoldingHeart, // For Volunteers
+  FaUserFriends,      // For Volunteer List
+  FaCalendarAlt       // For Camps
 } from 'react-icons/fa';
 
 const Sidebar = ({ collapsed, setCollapsed, userRole }) => {
@@ -36,6 +39,7 @@ const Sidebar = ({ collapsed, setCollapsed, userRole }) => {
   const [openMenus, setOpenMenus] = useState({
     donors: true,
     inventory: false,
+    volunteers: false,  // Added volunteers menu state
     requests: false,
     reports: false,
     admin: false
@@ -86,6 +90,27 @@ const Sidebar = ({ collapsed, setCollapsed, userRole }) => {
         { icon: <FaTrashAlt />, label: 'Discard Expired', path: '/dashboard/inventory/discard', roles: ['admin'] },
       ]
     },
+    // ✅ NEW: Volunteer Management Section
+    {
+      key: 'volunteers',
+      icon: <FaHandHoldingHeart />,
+      label: 'Volunteer Management',
+      roles: ['admin', 'technician'],
+      submenu: [
+        { 
+          icon: <FaUserFriends />, 
+          label: 'All Volunteers', 
+          path: '/dashboard/volunteers', 
+          roles: ['admin', 'technician'] 
+        },
+        { 
+          icon: <FaCalendarAlt />, 
+          label: 'Camps', 
+          path: '/dashboard/camps', 
+          roles: ['admin', 'technician'] 
+        }
+      ]
+    },
     {
       key: 'requests',
       icon: <FaClipboardList />,
@@ -93,11 +118,8 @@ const Sidebar = ({ collapsed, setCollapsed, userRole }) => {
       roles: ['admin', 'technician'],
       submenu: [
         { icon: <FaClipboardList />, label: 'All Requests', path: '/dashboard/requests', roles: ['admin', 'technician'] },
-       
       ]
     },
-    
-   
   ];
 
   const NavItem = ({ item, depth = 0 }) => {
@@ -226,7 +248,7 @@ const Sidebar = ({ collapsed, setCollapsed, userRole }) => {
       <div className="absolute bottom-0 w-full p-3 border-t bg-white">
         <button
           onClick={handleLogout}
-          className={`w-full flex items-center gap-3 px-4 py-0  text-red-600 hover:bg-red-50 rounded-lg transition-colors ${
+          className={`w-full flex items-center gap-3 px-4 py-0 text-red-600 hover:bg-red-50 rounded-lg transition-colors ${
             collapsed ? 'justify-center' : ''
           }`}
         >

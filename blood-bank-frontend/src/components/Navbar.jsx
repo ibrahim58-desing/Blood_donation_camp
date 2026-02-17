@@ -29,11 +29,11 @@ const Navbar = () => {
   const [userRole, setUserRole] = useState('');
   const observerRef = useRef(null);
 
-  // ✅ FIXED: Changed path from '/request' to '/requests/new'
+  // ✅ Menu items - About Us path to go to the full About page
   const menuItems = [
     { id: 1, name: 'Home', icon: <FaHome />, path: '/' },
-    { id: 2, name: 'Request', icon: <FaHandsHelping />, path: '/requests/new' }, // CHANGED THIS LINE
-    { id: 3, name: 'About Us', icon: <FaInfoCircle />, path: '/#about-section' },
+    { id: 2, name: 'Request', icon: <FaHandsHelping />, path: '/requests/new' },
+    { id: 3, name: 'About Us', icon: <FaInfoCircle />, path: '/about' },
     ...(isLoggedIn 
       ? [{ id: 4, name: 'Dashboard', icon: <FaTachometerAlt />, path: '/dashboard' }]
       : [{ id: 4, name: 'Login', icon: <FaUser />, path: '/login' }]
@@ -61,6 +61,23 @@ const Navbar = () => {
     navigate('/');
   };
 
+  // Handle Volunteer button click
+  const handleVolunteerClick = () => {
+    setActiveTab('Volunteer');
+    navigate('/volunteer/register');
+    setIsOpen(false);
+  };
+
+  // Handle About Us click - Separate function for home page smooth scroll
+  const handleHomeAboutClick = (e) => {
+    e.preventDefault();
+    setActiveTab('About Us');
+    const aboutSection = document.getElementById('about-section');
+    if (aboutSection) {
+      aboutSection.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   // Scroll effect
   useEffect(() => {
     const handleScroll = () => {
@@ -80,7 +97,6 @@ const Navbar = () => {
       const userData = JSON.parse(user);
       setUserRole(userData.role);
       
-      // If on login page, don't set active tab to Login
       if (window.location.pathname === '/login') {
         setActiveTab('Dashboard');
       }
@@ -90,10 +106,20 @@ const Navbar = () => {
     }
   }, [window.location.pathname]);
 
-  // Intersection Observer for About section
+  // Update active tab based on current path
+  useEffect(() => {
+    const path = window.location.pathname;
+    if (path === '/') setActiveTab('Home');
+    else if (path === '/requests/new') setActiveTab('Request');
+    else if (path === '/about') setActiveTab('About Us');
+    else if (path === '/volunteer/register') setActiveTab('Volunteer');
+    else if (path.startsWith('/dashboard')) setActiveTab('Dashboard');
+  }, [window.location.pathname]);
+
+  // Intersection Observer for About section (only on home page)
   useEffect(() => {
     const aboutSection = document.getElementById('about-section');
-    if (!aboutSection) return;
+    if (!aboutSection || window.location.pathname !== '/') return;
 
     observerRef.current = new IntersectionObserver(
       (entries) => {
@@ -109,7 +135,7 @@ const Navbar = () => {
 
     observerRef.current.observe(aboutSection);
     return () => observerRef.current?.disconnect();
-  }, []);
+  }, [window.location.pathname]);
 
   const navbarBackground = isAboutSection
     ? 'bg-gradient-to-b from-white via-red-50/95 to-white/95'
@@ -130,8 +156,8 @@ const Navbar = () => {
         shadow-lg ${isAboutSection ? 'shadow-red-100/50' : 'shadow-gray-100/50'}
       `}
     >
-      {/* Animated floating elements in About section */}
-      {isAboutSection && (
+      {/* Animated floating elements in About section (only on home page) */}
+      {isAboutSection && window.location.pathname === '/' && (
         <div className="absolute top-0 left-0 w-full h-full pointer-events-none overflow-hidden">
           {aboutIcons.map((icon, index) => (
             <div
@@ -200,28 +226,41 @@ const Navbar = () => {
             {/* Regular Navigation Items */}
             <div className="flex items-center bg-gray-50/50 rounded-xl p-1">
               {menuItems.map((item) => {
-                if (item.name === 'Login' || item.name === 'Dashboard') {
+                // Special handling for About Us on home page
+                if (item.name === 'About Us' && window.location.pathname === '/') {
                   return (
-                    <Link
+                    <button
                       key={item.id}
-                      to={item.path}
+                      onClick={handleHomeAboutClick}
                       className={`
                         relative flex items-center px-6 py-3 text-sm font-medium 
                         transition-all duration-300 rounded-lg mx-1 min-w-25 justify-center
                         ${activeTab === item.name
-                          ? 'bg-white text-red-700 font-semibold shadow-sm'
+                          ? isAboutSection
+                            ? 'bg-linear-to-r from-red-100 to-pink-100 text-red-700 font-bold shadow-inner'
+                            : 'bg-white text-red-700 font-semibold shadow-sm'
                           : 'text-gray-700 hover:text-red-600 hover:bg-white/80'
                         }
+                        ${isAboutSection ? 'ring-1 ring-red-200/50' : ''}
                       `}
-                      onClick={() => handleTabClick(item.name)}
                     >
-                      <span className="mr-2">{item.icon}</span>
+                      <span className={`mr-2 ${isAboutSection ? 'text-red-600' : ''}`}>
+                        {item.icon}
+                      </span>
                       {item.name}
-                    </Link>
+
+                      {/* Special indicator for About Us in About section */}
+                      {isAboutSection && (
+                        <>
+                          <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full animate-ping" />
+                          <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full" />
+                        </>
+                      )}
+                    </button>
                   );
                 }
 
-                // For other menu items (Home, Request, About Us)
+                // Regular link for other items or About Us on other pages
                 return (
                   <Link
                     key={item.id}
@@ -231,26 +270,13 @@ const Navbar = () => {
                       relative flex items-center px-6 py-3 text-sm font-medium 
                       transition-all duration-300 rounded-lg mx-1 min-w-25 justify-center
                       ${activeTab === item.name
-                        ? isAboutSection && item.name === 'About Us'
-                          ? 'bg-linear-to-r from-red-100 to-pink-100 text-red-700 font-bold shadow-inner'
-                          : 'bg-white text-red-700 font-semibold shadow-sm'
+                        ? 'bg-white text-red-700 font-semibold shadow-sm'
                         : 'text-gray-700 hover:text-red-600 hover:bg-white/80'
                       }
-                      ${isAboutSection && item.name === 'About Us' ? 'ring-1 ring-red-200/50' : ''}
                     `}
                   >
-                    <span className={`mr-2 ${isAboutSection && item.name === 'About Us' ? 'text-red-600' : ''}`}>
-                      {item.icon}
-                    </span>
+                    <span className="mr-2">{item.icon}</span>
                     {item.name}
-
-                    {/* Special indicator for About Us in About section */}
-                    {isAboutSection && item.name === 'About Us' && (
-                      <>
-                        <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full animate-ping" />
-                        <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full" />
-                      </>
-                    )}
                   </Link>
                 );
               })}
@@ -259,7 +285,7 @@ const Navbar = () => {
             {/* Volunteer Button */}
             <div className="ml-2">
               <button
-                onClick={() => handleTabClick('Volunteer')}
+                onClick={handleVolunteerClick}
                 className={`
                   relative flex items-center px-8 py-3 text-sm font-bold
                   transition-all duration-500 rounded-xl
@@ -275,19 +301,17 @@ const Navbar = () => {
                 {/* Shimmer effect */}
                 <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
 
-                {/* Button content */}
                 <FaUserPlus className="mr-3 transition-transform group-hover:scale-110 group-hover:rotate-12" />
                 <span className="relative tracking-wide">VOLUNTEER</span>
 
-                {/* Animated stars in About section */}
-                {isAboutSection && (
+                {/* Animated stars in About section (only on home page) */}
+                {isAboutSection && window.location.pathname === '/' && (
                   <>
                     <FaStar className="ml-3 text-yellow-300 text-xs animate-spin-slow" />
                     <FaStar className="ml-1 text-yellow-300 text-xs animate-spin-slow" style={{ animationDelay: '0.5s' }} />
                   </>
                 )}
 
-                {/* Arrow animation */}
                 <FaArrowRight className={`
                   ml-3 transition-all duration-300 transform
                   ${activeTab === 'Volunteer'
@@ -369,52 +393,74 @@ const Navbar = () => {
           `}>
             <div className="space-y-2 px-2">
               {/* Mobile Navigation Items */}
-              {menuItems.map((item) => (
-                <Link
-                  key={item.id}
-                  to={item.path}
-                  onClick={() => {
-                    handleTabClick(item.name);
-                    setIsOpen(false);
-                  }}
-                  className={`
-                    flex items-center w-full px-5 py-4 text-left rounded-xl
-                    transition-all duration-300 relative
-                    ${activeTab === item.name
-                      ? (isAboutSection && item.name === 'About Us'
-                        ? 'bg-linear-to-r from-red-100/80 to-pink-100/80 text-red-700 font-bold border-l-4 border-red-600'
-                        : 'bg-red-50 text-red-700 font-semibold border-l-4 border-red-500'
-                      )
-                      : 'text-gray-700 hover:bg-red-50/50 hover:text-red-600'
-                    }
-                  `}
-                >
-                  <span className={`
-                    mr-4 text-xl
-                    ${item.name === 'About Us' && isAboutSection ? 'text-red-600' : ''}
-                  `}>
-                    {item.icon}
-                  </span>
-                  <span className="text-lg font-medium">{item.name}</span>
-
-                  {isAboutSection && item.name === 'About Us' && (
-                    <div className="ml-auto flex items-center space-x-2">
-                      <div className="w-2 h-2 bg-red-500 rounded-full animate-ping" />
-                      <span className="text-xs font-bold text-red-600 bg-red-100 px-3 py-1 rounded-full">
-                        ACTIVE
+              {menuItems.map((item) => {
+                // Special handling for About Us on home page in mobile
+                if (item.name === 'About Us' && window.location.pathname === '/') {
+                  return (
+                    <button
+                      key={item.id}
+                      onClick={() => {
+                        handleHomeAboutClick();
+                        setIsOpen(false);
+                      }}
+                      className={`
+                        flex items-center w-full px-5 py-4 text-left rounded-xl
+                        transition-all duration-300 relative
+                        ${activeTab === item.name
+                          ? isAboutSection
+                            ? 'bg-linear-to-r from-red-100/80 to-pink-100/80 text-red-700 font-bold border-l-4 border-red-600'
+                            : 'bg-red-50 text-red-700 font-semibold border-l-4 border-red-500'
+                          : 'text-gray-700 hover:bg-red-50/50 hover:text-red-600'
+                        }
+                      `}
+                    >
+                      <span className={`mr-4 text-xl ${isAboutSection ? 'text-red-600' : ''}`}>
+                        {item.icon}
                       </span>
-                    </div>
-                  )}
-                </Link>
-              ))}
+                      <span className="text-lg font-medium">{item.name}</span>
+
+                      {isAboutSection && (
+                        <div className="ml-auto flex items-center space-x-2">
+                          <div className="w-2 h-2 bg-red-500 rounded-full animate-ping" />
+                          <span className="text-xs font-bold text-red-600 bg-red-100 px-3 py-1 rounded-full">
+                            ACTIVE
+                          </span>
+                        </div>
+                      )}
+                    </button>
+                  );
+                }
+
+                // Regular link for other items
+                return (
+                  <Link
+                    key={item.id}
+                    to={item.path}
+                    onClick={() => {
+                      handleTabClick(item.name);
+                      setIsOpen(false);
+                    }}
+                    className={`
+                      flex items-center w-full px-5 py-4 text-left rounded-xl
+                      transition-all duration-300 relative
+                      ${activeTab === item.name
+                        ? 'bg-red-50 text-red-700 font-semibold border-l-4 border-red-500'
+                        : 'text-gray-700 hover:bg-red-50/50 hover:text-red-600'
+                      }
+                    `}
+                  >
+                    <span className="mr-4 text-xl">
+                      {item.icon}
+                    </span>
+                    <span className="text-lg font-medium">{item.name}</span>
+                  </Link>
+                );
+              })}
 
               {/* Mobile Volunteer Button */}
               <div className="pt-4 border-t border-red-100">
                 <button
-                  onClick={() => {
-                    handleTabClick('Volunteer');
-                    setIsOpen(false);
-                  }}
+                  onClick={handleVolunteerClick}
                   className={`
                     w-full px-5 py-4 text-left rounded-xl flex items-center
                     relative overflow-hidden group
@@ -425,7 +471,6 @@ const Navbar = () => {
                     shadow-lg hover:shadow-xl
                   `}
                 >
-                  {/* Shimmer effect */}
                   <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
 
                   <div className="relative z-10 flex items-center w-full">
@@ -436,7 +481,7 @@ const Navbar = () => {
                     </div>
                     <div className="flex flex-col items-center">
                       <div className="text-xs font-bold bg-white/30 px-3 py-1 rounded-full mb-1 animate-pulse">
-                        URGENT NEED
+                        REGISTER NOW
                       </div>
                       <FaArrowRight className="group-hover:translate-x-2 transition-transform" />
                     </div>
@@ -444,7 +489,7 @@ const Navbar = () => {
                 </button>
               </div>
 
-              {/* Mobile Logout Button - Only show when logged in */}
+              {/* Mobile Logout Button */}
               {isLoggedIn && (
                 <div className="pt-4 border-t border-red-100">
                   <button

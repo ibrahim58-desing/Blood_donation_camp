@@ -11,7 +11,8 @@ import {
   FaSpinner,
   FaExclamationTriangle,
   FaSync,
-  FaDatabase
+  FaDatabase,
+  FaUserPlus
 } from 'react-icons/fa';
 
 const HeroSection = () => {
@@ -126,6 +127,11 @@ const HeroSection = () => {
     navigate('/donors/register');
   };
 
+  // ✅ NEW: Handle Volunteer Registration
+  const handleVolunteerRegistration = () => {
+    navigate('/volunteer/register');
+  };
+
   const handleRefresh = () => {
     fetchInventoryData();
   };
@@ -170,13 +176,19 @@ const HeroSection = () => {
             Saving Lives Made Simpler and Faster
           </p>
 
-          {/* CTA Buttons */}
+          {/* CTA Buttons - Updated with Volunteer Registration */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center pt-8">
-            <button className="bg-white hover:bg-red-50 text-red-700 px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center justify-center gap-3 group">
+            {/* Volunteer Button */}
+            <button 
+              onClick={handleVolunteerRegistration}
+              className="bg-white hover:bg-red-50 text-red-700 px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center justify-center gap-3 group"
+            >
+              <FaUserPlus className="group-hover:scale-110 transition-transform" />
               Register to Become Volunteer
               <FaArrowRight className="group-hover:translate-x-1 transition-transform" />
             </button>
             
+            {/* Emergency Request Button */}
             <button 
               onClick={handleEmergencyRequest}
               className="bg-transparent hover:bg-white/20 text-white border-2 border-white px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
@@ -348,9 +360,6 @@ const HeroSection = () => {
                 );
               })}
             </div>
-
-           
-            
           </div>
         </div>
       </div>
