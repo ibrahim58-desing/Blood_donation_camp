@@ -148,7 +148,6 @@ router.post("/donors", protect, authorize('admin','technician'),
 router.put(
   "/donors/:donor_code",
   protect, authorize('admin','technician'),
-  // validate donor_code properly
   param("donor_code")
     .notEmpty()
     .withMessage("Donor code is required"),
@@ -158,6 +157,7 @@ router.put(
   async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
+      console.log("Validation errors:", JSON.stringify(errors.array(), null, 2)); // ← ADD HERE
       return res.status(400).json({ error: errors.array() });
     }
 

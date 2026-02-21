@@ -31,6 +31,7 @@ import VolunteerRegistration from './components/volunteers/VolunteerRegistration
 import VolunteerList from './components/volunteers/VolunteerList';
 import VolunteerDetails from './components/volunteers/VolunteerDetails';
 import CampList from './components/volunteers/CampList';
+import CreateCamp from './components/volunteers/CreateCamp';
 
 // Request Components
 import BloodRequestList from './components/requests/BloodRequestList.jsx';
@@ -117,6 +118,7 @@ function App() {
           <Route path="volunteers" element={<VolunteerList />} />        {/* /dashboard/volunteers */}
           <Route path="volunteers/:id" element={<VolunteerDetails />} /> {/* /dashboard/volunteers/123 */}
           <Route path="camps" element={<CampList />} />
+          <Route path="camps/create" element={<CreateCamp />} />
 
           {/* Request Management Routes - Inside Dashboard (for staff) */}
           <Route path="requests" element={<BloodRequestList />} />
