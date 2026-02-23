@@ -22,7 +22,7 @@ const PORT = process.env.PORT || 3000
 app.use(express.json())
 
 app.use(cors({
-    origin: "http://localhost:5173", // Your Vite frontend port
+    origin: "https://blood-donation-camp-frontend.onrender.com", // Your Vite frontend port
     credentials: true
 }));
 mongoose.connect(process.env.MONGO_URI)
