@@ -1,5 +1,5 @@
 import express from 'express';
-import { protect, authorize } from '../Middleware/auth.js';
+import { protect, authorize } from '../Middleware/Auth.js';
 import { Camp } from '../Mongoose/Model/CampSchema.js';
 
 const router = express.Router();

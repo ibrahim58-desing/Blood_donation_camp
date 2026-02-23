@@ -164,68 +164,7 @@ router.get('/inventory/debug/expiring', protect, authorize('admin', 'technician'
 });
 
 // TEMPORARY TEST SCRIPT - Run this once to create test data
-router.post('/inventory/test/create-expiring', protect, authorize('admin'), async (req, res) => {
-    try {
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        
-        // Find a donor to use for test units
-        const donor = await Donor.findOne();
-        if (!donor) {
-            return res.status(404).json({ error: "No donor found. Create a donor first." });
-        }
 
-        // Create test units with different expiry dates
-        const testUnits = [
-            {
-                unit_number: `TEST-EXP-${Date.now()}-1`,
-                donor_id: donor._id,
-                blood_type: donor.blood_type,
-                components: 'whole_blood',
-                volume_ml: 450,
-                collection_date: new Date(today.getTime() - 10 * 24 * 60 * 60 * 1000), // 10 days ago
-                expiry_date: new Date(today.getTime() + 2 * 24 * 60 * 60 * 1000), // 2 days from now
-                status: 'available',
-                storage_location: 'TEST-A1'
-            },
-            {
-                unit_number: `TEST-EXP-${Date.now()}-2`,
-                donor_id: donor._id,
-                blood_type: donor.blood_type,
-                components: 'rbc',
-                volume_ml: 350,
-                collection_date: new Date(today.getTime() - 15 * 24 * 60 * 60 * 1000), // 15 days ago
-                expiry_date: new Date(today.getTime() + 5 * 24 * 60 * 60 * 1000), // 5 days from now
-                status: 'available',
-                storage_location: 'TEST-B2'
-            },
-            {
-                unit_number: `TEST-EXP-${Date.now()}-3`,
-                donor_id: donor._id,
-                blood_type: donor.blood_type,
-                components: 'plasma',
-                volume_ml: 250,
-                collection_date: new Date(today.getTime() - 20 * 24 * 60 * 60 * 1000), // 20 days ago
-                expiry_date: new Date(today.getTime() + 1 * 24 * 60 * 60 * 1000), // 1 day from now
-                status: 'available',
-                storage_location: 'TEST-C3'
-            }
-        ];
-
-        const created = await Inventory.insertMany(testUnits);
-        
-        console.log('Created test expiring units:', created);
-
-        res.json({
-            message: 'Test expiring units created',
-            units: created
-        });
-
-    } catch (err) {
-        console.error('Error creating test units:', err);
-        res.status(500).json({ error: err.message });
-    }
-});
 
 router.post('/inventory/discard' , protect, authorize('admin'), async (req, res) => {
 

@@ -32,7 +32,7 @@ const CreateCamp = () => {
     start_time: '',
     end_time: '',
     location: '',
-    address: '',
+    
     description: ''
   });
 
@@ -138,12 +138,7 @@ const CreateCamp = () => {
       newErrors.location = 'Location must be at least 3 characters';
     }
 
-    // Address validation (full address)
-    if (!formData.address.trim()) {
-      newErrors.address = 'Full address is required';
-    } else if (formData.address.trim().length < 5) {
-      newErrors.address = 'Please enter a complete address';
-    }
+  
 
     // Description validation (optional but recommended)
     if (formData.description && formData.description.length > 500) {
@@ -179,7 +174,7 @@ const CreateCamp = () => {
           start_time: formData.start_time,
           end_time: formData.end_time,
           location: formData.location,
-          address: formData.address,
+         
           description: formData.description || '' // Send empty string if not provided
         },
         {
@@ -198,7 +193,7 @@ const CreateCamp = () => {
           start_time: '',
           end_time: '',
           location: '',
-          address: '',
+          
           description: ''
         });
         
@@ -448,28 +443,7 @@ const CreateCamp = () => {
             </div>
 
             {/* Full Address */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Full Address <span className="text-red-500">*</span>
-              </label>
-              <div className="relative">
-                <input
-                  type="text"
-                  name="address"
-                  value={formData.address}
-                  onChange={handleChange}
-                  className={`w-full px-4 py-3 pl-12 bg-gray-50 border rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 transition-all ${
-                    errors.address ? 'border-red-500' : 'border-gray-200'
-                  }`}
-                  placeholder="e.g., Andheri East, Mumbai - 400069"
-                />
-                <FaHome className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
-              </div>
-              {errors.address && (
-                <p className="mt-1 text-sm text-red-600">{errors.address}</p>
-              )}
-            </div>
-
+           
             {/* Description */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -513,7 +487,7 @@ const CreateCamp = () => {
                   })}</p>
                   <p><span className="font-medium text-gray-700">Time:</span> {formatTimeForDisplay(formData.start_time)} - {formatTimeForDisplay(formData.end_time)}</p>
                   <p><span className="font-medium text-gray-700">Location:</span> {formData.location}</p>
-                  <p><span className="font-medium text-gray-700">Address:</span> {formData.address || 'Not provided'}</p>
+                  
                   {formData.description && (
                     <p><span className="font-medium text-gray-700">Description:</span> {formData.description}</p>
                   )}

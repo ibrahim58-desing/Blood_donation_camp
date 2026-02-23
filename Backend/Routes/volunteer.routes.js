@@ -537,57 +537,7 @@ router.delete('/:id', protect, authorize('admin'), async (req, res) => {
     }
 });
 
-// 6. POST /api/volunteers/:volunteerId/assign/:campId - Assign Volunteer to Camp (Admin Only)
-router.post('/:volunteerId/assign/:campId', protect, authorize('admin'), async (req, res) => {
-    try {
-        const { volunteerId, campId } = req.params;
 
-        // Check if volunteer exists
-        const volunteer = await Volunteer.findById(volunteerId);
-        if (!volunteer) {
-            return res.status(404).json({ 
-                success: false,
-                error: "Volunteer not found" 
-            });
-        }
 
-        // Check if camp exists
-        const camp = await Camp.findById(campId);
-        if (!camp) {
-            return res.status(404).json({ 
-                success: false,
-                error: "Camp not found" 
-            });
-        }
-
-        // Check if volunteer is already assigned
-        if (camp.volunteers.includes(volunteerId)) {
-            return res.status(400).json({
-                success: false,
-                error: "Volunteer already assigned to this camp"
-            });
-        }
-
-        // Add volunteer to camp
-        camp.volunteers.push(volunteerId);
-        await camp.save();
-
-        res.json({
-            success: true,
-            message: "Volunteer assigned to camp successfully",
-            data: {
-                volunteer: volunteer.name,
-                camp: camp.name,
-                camp_date: camp.date
-            }
-        });
-        
-    } catch (err) {
-        res.status(500).json({ 
-            success: false,
-            error: err.message 
-        });
-    }
-});
 
 export default router;

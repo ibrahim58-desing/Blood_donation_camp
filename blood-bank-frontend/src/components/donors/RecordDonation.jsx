@@ -15,11 +15,26 @@ import {
   FaUserCheck,
   FaUserTimes,
   FaClock,
-  FaWeight,
-  FaHeartbeat,
-  FaFlask,
-  FaStethoscope
+  FaFlask
 } from 'react-icons/fa';
+
+// Correct Game Icons imports - these are valid exports
+import { 
+  GiDrop,           // For whole blood
+  GiBlood,          // Alternative for blood
+  GiHealthNormal,   // For medical/health
+  GiMicroscope,     // For platelets/lab
+  GiTestTubes,      // For plasma/lab tests
+  GiHealing,        // For medical theme
+  GiMedicinePills   // Alternative
+} from 'react-icons/gi';
+
+// Material Design icons as alternatives
+import { 
+  MdOutlineBloodtype,
+  MdScience,
+  MdBiotech 
+} from 'react-icons/md';
 
 const RecordDonation = () => {
   const navigate = useNavigate();
@@ -35,6 +50,7 @@ const RecordDonation = () => {
   const [formData, setFormData] = useState({
     donation_date: new Date().toISOString().split('T')[0],
     quantity_ml: 450,
+    components: 'whole_blood', // Default value
     // Optional medical fields for display (not sent to backend)
     blood_pressure: '',
     hemoglobin: '',
@@ -43,6 +59,56 @@ const RecordDonation = () => {
     pulse_rate: '',
     notes: ''
   });
+
+  // Component options with valid icons
+  const componentOptions = [
+    { 
+      value: 'whole_blood', 
+      label: 'Whole Blood', 
+      icon: GiDrop,  // Using GiDrop instead of GiBlood
+      color: 'red', 
+      description: 'Standard whole blood donation',
+      bgColor: 'bg-red-100',
+      textColor: 'text-red-600',
+      borderColor: 'border-red-500'
+    },
+    { 
+      value: 'rbc', 
+      label: 'Red Blood Cells', 
+      icon: MdOutlineBloodtype,  // Using Material icon
+      color: 'red-700', 
+      description: 'Packed red blood cells',
+      bgColor: 'bg-red-200',
+      textColor: 'text-red-800',
+      borderColor: 'border-red-700'
+    },
+    { 
+      value: 'plasma', 
+      label: 'Plasma', 
+      icon: GiTestTubes,  // Using GiTestTubes instead of GiPlasma
+      color: 'yellow', 
+      description: 'Fresh frozen plasma',
+      bgColor: 'bg-yellow-100',
+      textColor: 'text-yellow-700',
+      borderColor: 'border-yellow-500'
+    },
+    { 
+      value: 'platelets', 
+      label: 'Platelets', 
+      icon: GiMicroscope,  // GiMicroscope works well for platelets
+      color: 'purple', 
+      description: 'Concentrated platelets',
+      bgColor: 'bg-purple-100',
+      textColor: 'text-purple-700',
+      borderColor: 'border-purple-500'
+    }
+  ];
+
+  // Alternative icon sets you can use instead:
+  // - GiHealthNormal - for general medical
+  // - GiHealing - for medical procedures
+  // - MdScience - for lab work
+  // - MdBiotech - for biotechnology
 
   // Check if donorCode was passed from DonorList
   useEffect(() => {
@@ -126,6 +192,11 @@ const RecordDonation = () => {
       return false;
     }
 
+    if (!formData.components) {
+      setError('Please select a blood component type');
+      return false;
+    }
+
     return true;
   };
 
@@ -142,11 +213,12 @@ const RecordDonation = () => {
     try {
       const token = localStorage.getItem('token');
       
-      // Create donation data using donor_code instead of donor_id
+      // Create donation data with components field
       const donationData = {
-        donor_code: donor.donor_code,  // Using donor_code instead of donor_id
+        donor_code: donor.donor_code,
         donation_date: formData.donation_date,
-        quantity_ml: parseInt(formData.quantity_ml)
+        quantity_ml: parseInt(formData.quantity_ml),
+        components: formData.components
       };
 
       const response = await axios.post(
@@ -167,6 +239,7 @@ const RecordDonation = () => {
         setFormData({
           donation_date: new Date().toISOString().split('T')[0],
           quantity_ml: 450,
+          components: 'whole_blood',
           blood_pressure: '',
           hemoglobin: '',
           weight: '',
@@ -397,9 +470,56 @@ const RecordDonation = () => {
                 </div>
                 <p className="text-xs text-gray-500 mt-1">Standard: 350-500 ml</p>
               </div>
-            </div>
 
-           
+              {/* Blood Components - New Field */}
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Blood Component <span className="text-red-500">*</span>
+                </label>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                  {componentOptions.map((option) => {
+                    const Icon = option.icon;
+                    const isSelected = formData.components === option.value;
+
+                    return (
+                      <button
+                        key={option.value}
+                        type="button"
+                        onClick={() => setFormData({...formData, components: option.value})}
+                        className={`p-4 border-2 rounded-xl text-left transition-all duration-200 ${
+                          isSelected 
+                            ? `${option.bgColor} ${option.borderColor} ring-2 ring-${option.color}-200 shadow-md` 
+                            : 'border-gray-200 hover:border-gray-300 hover:shadow bg-white'
+                        }`}
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className={`p-2 rounded-full ${
+                            isSelected ? option.bgColor : 'bg-gray-100'
+                          }`}>
+                            <Icon className={`text-xl ${
+                              isSelected ? option.textColor : 'text-gray-500'
+                            }`} />
+                          </div>
+                          <div className="flex-1">
+                            <p className={`font-semibold ${
+                              isSelected ? option.textColor : 'text-gray-700'
+                            }`}>
+                              {option.label}
+                            </p>
+                            <p className="text-xs text-gray-500 mt-1">
+                              {option.description}
+                            </p>
+                          </div>
+                          {isSelected && (
+                            <FaCheckCircle className={`${option.textColor}`} />
+                          )}
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
           </div>
 
           {/* Form Actions */}

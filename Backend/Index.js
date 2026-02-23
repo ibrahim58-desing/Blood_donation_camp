@@ -25,9 +25,9 @@ app.use(cors({
     origin: "http://localhost:5173", // Your Vite frontend port
     credentials: true
 }));
-mongoose.connect('mongodb://localhost/BloodDonationCamp')
-    .then(() => console.log("db is fucking connected"))
-    .catch((err) => console.log(`Error:${err}`))
+mongoose.connect(process.env.MONGO_URI)
+  .then(() => console.log("MongoDB Atlas Connected"))
+  .catch((err) => console.log(`Error: ${err}`));
 
 app.use('/api', authRoute)
 

@@ -52,7 +52,10 @@ const BloodUnitList = () => {
     components: '',
     volume_ml: '',
     storage_location: '',
-    status: ''
+    status: '',
+    donor_code: '',
+    collection_date: '',
+    expiry_date: ''
   });
   const [editLoading, setEditLoading] = useState(false);
   const [editErrors, setEditErrors] = useState({});
@@ -120,6 +123,8 @@ const BloodUnitList = () => {
       const response = await axios.get('http://localhost:5000/api/inventory', {
         headers: { Authorization: `Bearer ${token}` }
       });
+      
+      console.log('Fetched units:', response.data); // For debugging
       
       setUnits(response.data);
       calculateStats(response.data);
@@ -235,7 +240,11 @@ const BloodUnitList = () => {
       components: unit.components,
       volume_ml: unit.volume_ml,
       storage_location: unit.storage_location,
-      status: unit.status
+      status: unit.status,
+      // Include these as they are required by the validation
+      donor_code: unit.donor_id?.donor_code || '',
+      collection_date: unit.collection_date ? new Date(unit.collection_date).toISOString().split('T')[0] : '',
+      expiry_date: unit.expiry_date ? new Date(unit.expiry_date).toISOString().split('T')[0] : ''
     });
     setEditErrors({});
     setShowEditModal(true);
@@ -273,6 +282,11 @@ const BloodUnitList = () => {
     if (!editFormData.status) {
       errors.status = 'Status is required';
     }
+
+    // Validate donor_code format if it exists
+    if (editFormData.donor_code && !editFormData.donor_code.match(/^DON-[a-zA-Z0-9]+$/)) {
+      errors.donor_code = 'Invalid donor code format';
+    }
     
     return errors;
   };
@@ -289,9 +303,24 @@ const BloodUnitList = () => {
     setEditLoading(true);
     try {
       const token = localStorage.getItem('token');
-      await axios.put(
+      
+      // Prepare data according to API validation schema
+      const updateData = {
+        components: editFormData.components,
+        volume_ml: parseInt(editFormData.volume_ml), // Ensure it's a number
+        storage_location: editFormData.storage_location,
+        status: editFormData.status,
+        // Include these required fields
+        donor_code: editingUnit.donor_id?.donor_code, // Keep original donor_code
+        collection_date: editingUnit.collection_date, // Keep original collection_date
+        expiry_date: editingUnit.expiry_date // Keep original expiry_date
+      };
+
+      console.log('Sending update data:', updateData); // For debugging
+
+      const response = await axios.put(
         `http://localhost:5000/api/inventory/${editingUnit._id}`,
-        editFormData,
+        updateData,
         {
           headers: { 
             'Authorization': `Bearer ${token}`,
@@ -299,6 +328,8 @@ const BloodUnitList = () => {
           }
         }
       );
+
+      console.log('Update response:', response.data); // For debugging
 
       // Refresh the list
       await fetchBloodUnits();
@@ -311,9 +342,21 @@ const BloodUnitList = () => {
       
     } catch (err) {
       console.error('Error updating unit:', err);
-      setEditErrors({ 
-        form: err.response?.data?.error || 'Failed to update blood unit' 
-      });
+      
+      // Handle validation errors from backend
+      if (err.response?.data?.errors) {
+        // If there are multiple validation errors
+        const backendErrors = {};
+        err.response.data.errors.forEach(error => {
+          backendErrors[error.path || error.param || 'form'] = error.msg;
+        });
+        setEditErrors(backendErrors);
+      } else {
+        // Single error message
+        setEditErrors({ 
+          form: err.response?.data?.error || 'Failed to update blood unit' 
+        });
+      }
     } finally {
       setEditLoading(false);
     }
@@ -418,7 +461,7 @@ const BloodUnitList = () => {
   }
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-red-50 via-white to-red-100 py-12 px-4">
+    <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-red-100 py-12 px-4">
       <div className="max-w-7xl mx-auto">
         {/* Header with Back Button */}
         <div className="flex items-center justify-between mb-8">
@@ -451,7 +494,7 @@ const BloodUnitList = () => {
         {/* Main Card */}
         <div className="bg-white rounded-2xl shadow-2xl border border-red-100 overflow-hidden">
           {/* Header */}
-          <div className="bg-linear-to-r from-red-600 to-pink-600 px-8 py-6">
+          <div className="bg-gradient-to-r from-red-600 to-pink-600 px-8 py-6">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
                 <div className="bg-white/20 p-3 rounded-full">
@@ -464,14 +507,6 @@ const BloodUnitList = () => {
                   </p>
                 </div>
               </div>
-              
-              <button
-                onClick={() => navigate('/inventory/add')}
-                className="bg-white text-red-600 px-4 py-2 rounded-xl font-medium hover:bg-red-50 transition-colors flex items-center gap-2"
-              >
-                <FaPlus />
-                Add Blood Unit
-              </button>
             </div>
           </div>
 
@@ -599,14 +634,7 @@ const BloodUnitList = () => {
                 <FaFilter className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
               </div>
 
-              {/* Export Button */}
-              <button
-                onClick={() => {/* Handle export */}}
-                className="flex items-center justify-center gap-2 px-4 py-2 bg-gray-100 border border-gray-200 rounded-xl hover:bg-gray-200 transition-colors"
-              >
-                <FaDownload />
-                Export
-              </button>
+              
             </div>
           </div>
 
@@ -756,13 +784,7 @@ const BloodUnitList = () => {
                             </td>
                             <td className="px-6 py-4">
                               <div className="flex items-center gap-2">
-                                <button
-                                  onClick={() => navigate(`/inventory/${unit._id}`)}
-                                  className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                                  title="View Details"
-                                >
-                                  <FaEye />
-                                </button>
+                                
                                 
                                 {/* Edit button - visible to both admin and technician */}
                                 <button
@@ -854,7 +876,7 @@ const BloodUnitList = () => {
       {showEditModal && editingUnit && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl max-w-md w-full max-h-[90vh] overflow-y-auto">
-            <div className="bg-linear-to-r from-red-600 to-pink-600 px-6 py-4 flex items-center justify-between">
+            <div className="bg-gradient-to-r from-red-600 to-pink-600 px-6 py-4 flex items-center justify-between">
               <h2 className="text-xl font-bold text-white">Edit Blood Unit</h2>
               <button
                 onClick={() => setShowEditModal(false)}
@@ -867,10 +889,26 @@ const BloodUnitList = () => {
             <form onSubmit={handleEditSubmit} className="p-6 space-y-4">
               {/* Unit Info */}
               <div className="bg-gray-50 p-4 rounded-xl">
-                <p className="text-sm text-gray-600">Unit Number</p>
-                <p className="font-mono font-medium">{editingUnit.unit_number}</p>
-                <p className="text-sm text-gray-600 mt-2">Blood Type</p>
-                <p className="font-medium">{editingUnit.blood_type}</p>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-sm text-gray-600">Unit Number</p>
+                    <p className="font-mono font-medium">{editingUnit.unit_number}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-600">Donor Code</p>
+                    <p className="font-mono font-medium">{editingUnit.donor_id?.donor_code || 'N/A'}</p>
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-4 mt-2">
+                  <div>
+                    <p className="text-sm text-gray-600">Blood Type</p>
+                    <p className="font-medium">{editingUnit.blood_type}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-600">Collection Date</p>
+                    <p className="font-medium">{new Date(editingUnit.collection_date).toLocaleDateString()}</p>
+                  </div>
+                </div>
               </div>
 
               {/* Component Type */}
@@ -961,6 +999,16 @@ const BloodUnitList = () => {
                 )}
               </div>
 
+              {/* Hidden fields for required data */}
+              <input type="hidden" name="donor_code" value={editFormData.donor_code} />
+              <input type="hidden" name="collection_date" value={editFormData.collection_date} />
+              <input type="hidden" name="expiry_date" value={editFormData.expiry_date} />
+
+              {/* Display validation errors from backend */}
+              {editErrors.donor_code && (
+                <p className="text-sm text-red-600">{editErrors.donor_code}</p>
+              )}
+
               {/* Form Error */}
               {editErrors.form && (
                 <div className="p-3 bg-red-50 border border-red-200 rounded-xl flex items-center gap-2">
@@ -981,7 +1029,7 @@ const BloodUnitList = () => {
                 <button
                   type="submit"
                   disabled={editLoading}
-                  className="flex-1 px-4 py-3 bg-linear-to-r from-red-600 to-pink-600 text-white font-medium rounded-xl hover:from-red-700 hover:to-pink-700 transition-colors disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  className="flex-1 px-4 py-3 bg-gradient-to-r from-red-600 to-pink-600 text-white font-medium rounded-xl hover:from-red-700 hover:to-pink-700 transition-colors disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
                   {editLoading ? (
                     <>

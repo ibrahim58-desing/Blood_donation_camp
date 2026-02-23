@@ -3,13 +3,13 @@ import {
   FaCalendarAlt, 
   FaMapMarkerAlt, 
   FaClock, 
-  FaUsers,
-  FaPhoneAlt,
   FaHeartbeat,
-  FaShareAlt,
-  FaTint,
   FaSpinner,
   FaExclamationTriangle,
+  FaChevronLeft,
+  FaChevronRight,
+  FaPhoneAlt,
+  FaFileAlt
 } from 'react-icons/fa';
 import axios from 'axios';
 
@@ -18,6 +18,8 @@ const UpcomingCamps = () => {
   const [camps, setCamps] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [campsPerPage] = useState(6);
 
   // Fetch upcoming camps from database
   useEffect(() => {
@@ -29,32 +31,39 @@ const UpcomingCamps = () => {
     setError('');
     
     try {
-      const token = localStorage.getItem('token');
+      const response = await axios.get('http://localhost:5000/api/camps/upcoming');
       
-      const response = await axios.get('http://localhost:5000/api/camps/upcoming', {
-        headers: token ? { 'Authorization': `Bearer ${token}` } : {}
-      });
-      
-      console.log('Fetched camps:', response.data);
+      console.log('Fetched camps response:', response.data);
       
       if (response.data.success) {
         // Transform database data to match component format
         const transformedCamps = response.data.camps.map(camp => ({
           id: camp._id,
           title: camp.name,
+          rawDate: new Date(camp.date),
           date: new Date(camp.date).toLocaleDateString('en-US', {
             year: 'numeric',
             month: 'long',
             day: 'numeric'
           }),
           day: new Date(camp.date).toLocaleDateString('en-US', { weekday: 'long' }),
-          time: `${camp.start_time} - ${camp.end_time}`,
+          start_time: camp.start_time,
+          end_time: camp.end_time,
+          time: `${formatTimeForDisplay(camp.start_time)} - ${formatTimeForDisplay(camp.end_time)}`,
           location: camp.location,
-          volunteers: camp.volunteers || [],
+          address: camp.address || camp.location,
+          description: camp.description || '',
           reminders_sent: camp.reminders_sent || false,
+          isPast: new Date(camp.date) < new Date()
         }));
         
-        setCamps(transformedCamps);
+        // Filter out past camps
+        const upcomingCamps = transformedCamps.filter(camp => !camp.isPast);
+        
+        // Sort by date (closest first)
+        upcomingCamps.sort((a, b) => a.rawDate - b.rawDate);
+        
+        setCamps(upcomingCamps);
       }
     } catch (err) {
       console.error('Error fetching camps:', err);
@@ -64,12 +73,57 @@ const UpcomingCamps = () => {
     }
   };
 
+  // Format time for display (AM/PM)
+  const formatTimeForDisplay = (timeValue) => {
+    if (!timeValue) return '';
+    
+    if (timeValue.includes('AM') || timeValue.includes('PM')) {
+      return timeValue;
+    }
+    
+    if (timeValue.match(/^\d{2}:\d{2}$/)) {
+      const [hour, minute] = timeValue.split(':');
+      const h = parseInt(hour);
+      const period = h < 12 ? 'AM' : 'PM';
+      const displayHour = h === 0 ? 12 : h > 12 ? h - 12 : h;
+      return `${displayHour}:${minute} ${period}`;
+    }
+    
+    return timeValue;
+  };
+
+  // Get month abbreviation
+  const getMonthAbbr = (dateStr) => {
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('en-US', { month: 'short' }).toUpperCase();
+  };
+
+  // Get day of month
+  const getDayOfMonth = (dateStr) => {
+    const date = new Date(dateStr);
+    return date.getDate();
+  };
+
+  // Pagination
+  const indexOfLastCamp = currentPage * campsPerPage;
+  const indexOfFirstCamp = indexOfLastCamp - campsPerPage;
+  const currentCamps = camps.slice(indexOfFirstCamp, indexOfLastCamp);
+  const totalPages = Math.ceil(camps.length / campsPerPage);
+
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+    document.getElementById('camps-grid').scrollIntoView({ behavior: 'smooth' });
+  };
+
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-red-50 to-white">
+      <div className="min-h-[500px] flex items-center justify-center bg-gradient-to-b from-red-50 to-white py-16">
         <div className="text-center">
-          <FaSpinner className="animate-spin text-5xl text-red-600 mx-auto mb-4" />
-          <p className="text-gray-600">Loading upcoming camps...</p>
+          <div className="relative">
+            <FaHeartbeat className="text-6xl text-red-600 mx-auto mb-4 animate-pulse" />
+            <FaSpinner className="animate-spin text-4xl text-red-600 mx-auto absolute top-0 left-1/2 transform -translate-x-1/2" />
+          </div>
+          <p className="text-gray-600 text-lg mt-8">Loading upcoming camps...</p>
         </div>
       </div>
     );
@@ -77,14 +131,16 @@ const UpcomingCamps = () => {
 
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-red-50 to-white">
-        <div className="text-center">
-          <FaExclamationTriangle className="text-5xl text-red-600 mx-auto mb-4" />
-          <p className="text-gray-800 font-semibold mb-2">Oops! Something went wrong</p>
-          <p className="text-gray-600 mb-4">{error}</p>
+      <div className="min-h-[500px] flex items-center justify-center bg-gradient-to-b from-red-50 to-white py-16">
+        <div className="text-center max-w-md mx-auto bg-white p-8 rounded-2xl shadow-xl">
+          <div className="bg-red-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
+            <FaExclamationTriangle className="text-4xl text-red-600" />
+          </div>
+          <h3 className="text-xl font-bold text-gray-900 mb-2">Oops! Something went wrong</h3>
+          <p className="text-gray-600 mb-6">{error}</p>
           <button 
             onClick={fetchUpcomingCamps}
-            className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
+            className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors shadow-lg hover:shadow-xl"
           >
             Try Again
           </button>
@@ -94,49 +150,48 @@ const UpcomingCamps = () => {
   }
 
   return (
-    <div className="bg-gradient-to-b from-red-50 to-white py-16 md:py-24">
+    <div id="camps-grid" className="bg-gradient-to-b from-red-50 to-white py-16 md:py-24">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Header */}
         <div className="text-center max-w-4xl mx-auto mb-12">
-          <div className="inline-flex items-center gap-2 bg-red-600 text-white px-4 py-2 rounded-full text-sm font-semibold mb-6">
-            <FaCalendarAlt />
-            <span>Upcoming Camps</span>
+          <div className="inline-flex items-center gap-2 bg-gradient-to-r from-red-600 to-red-700 text-white px-6 py-3 rounded-full text-sm font-bold shadow-lg mb-6">
+            <FaCalendarAlt className="text-white" />
+            <span>UPCOMING BLOOD DONATION CAMPS</span>
           </div>
           
           <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
-            Join Our Next Blood Donation Camp
+            Join Our Next <span className="text-red-600">Life-Saving</span> Mission
           </h1>
           
-          <p className="text-xl text-gray-600 mb-8">
-            Find upcoming blood donation camps in your area. Save lives by donating blood.
+          <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
+            Find upcoming blood donation camps in your area. Every drop counts, every life matters.
           </p>
 
-          {/* Stats */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-2xl mx-auto">
-            <div className="bg-white rounded-xl p-4 shadow-md">
-              <div className="text-2xl font-bold text-red-600">{camps.length}</div>
-              <div className="text-sm text-gray-600">Active Camps</div>
-            </div>
-            <div className="bg-white rounded-xl p-4 shadow-md">
-              <div className="text-2xl font-bold text-red-600">
-                {camps.reduce((sum, camp) => sum + camp.volunteers.length, 0)}
+          {/* Stats - Simplified to just show camp count */}
+          {camps.length > 0 && (
+            <div className="grid grid-cols-1 gap-4 max-w-xs mx-auto">
+              <div className="bg-white rounded-xl p-6 shadow-md border border-red-100">
+                <div className="text-3xl font-bold text-red-600 mb-1">{camps.length}</div>
+                <div className="text-gray-600 font-medium">Upcoming Camps</div>
+                <div className="w-12 h-1 bg-red-200 rounded-full mx-auto mt-3"></div>
               </div>
-              <div className="text-sm text-gray-600">Total Volunteers</div>
             </div>
-          </div>
+          )}
         </div>
 
         {/* No Camps Message */}
         {camps.length === 0 && !loading && (
           <div className="text-center py-16">
-            <div className="bg-white rounded-2xl p-12 max-w-2xl mx-auto shadow-xl">
-              <FaCalendarAlt className="text-6xl text-gray-300 mx-auto mb-4" />
-              <h2 className="text-2xl font-bold text-gray-800 mb-2">No Upcoming Camps</h2>
-              <p className="text-gray-600 mb-6">There are no blood donation camps scheduled at the moment. Please check back later.</p>
+            <div className="bg-white rounded-2xl p-12 max-w-2xl mx-auto shadow-xl border border-red-100">
+              <div className="bg-red-100 w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6">
+                <FaCalendarAlt className="text-5xl text-red-600" />
+              </div>
+              <h2 className="text-2xl font-bold text-gray-800 mb-3">No Upcoming Camps</h2>
+              <p className="text-gray-600 mb-8 text-lg">There are no blood donation camps scheduled at the moment. Please check back later.</p>
               <button 
-                onClick={() => window.location.reload()}
-                className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
+                onClick={fetchUpcomingCamps}
+                className="bg-red-600 hover:bg-red-700 text-white px-8 py-3 rounded-lg font-semibold transition-colors shadow-lg hover:shadow-xl"
               >
                 Refresh
               </button>
@@ -144,158 +199,250 @@ const UpcomingCamps = () => {
           </div>
         )}
 
-        {/* Camps Grid - Simplified */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">
-          {camps.map((camp) => (
-            <div 
-              key={camp.id} 
-              className="bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-100 hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
-            >
-              {/* Camp Details */}
-              <div className="p-6">
-                <h2 className="text-xl font-bold text-gray-900 mb-4 line-clamp-2">{camp.title}</h2>
-
-                {/* Details */}
-                <div className="space-y-3 mb-6">
-                  <div className="flex items-center gap-3">
-                    <div className="bg-red-100 p-2 rounded-lg">
-                      <FaCalendarAlt className="text-red-600" />
+        {/* Camps Grid */}
+        {camps.length > 0 && (
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-8">
+              {currentCamps.map((camp) => (
+                <div 
+                  key={camp.id} 
+                  className="bg-white rounded-2xl shadow-xl overflow-hidden hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 cursor-pointer group border border-red-100"
+                  onClick={() => setSelectedCamp(camp)}
+                >
+                  {/* Date Badge */}
+                  <div className="relative">
+                    <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm rounded-xl p-3 shadow-lg z-10">
+                      <div className="text-center">
+                        <div className="text-sm font-bold text-red-600">{getMonthAbbr(camp.rawDate)}</div>
+                        <div className="text-2xl font-bold text-gray-800">{getDayOfMonth(camp.rawDate)}</div>
+                      </div>
                     </div>
-                    <div>
-                      <div className="text-xs text-gray-500">Date</div>
-                      <div className="font-semibold text-sm">{camp.date}</div>
-                      <div className="text-xs text-gray-600">{camp.day}</div>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-3">
-                    <div className="bg-red-100 p-2 rounded-lg">
-                      <FaClock className="text-red-600" />
-                    </div>
-                    <div>
-                      <div className="text-xs text-gray-500">Time</div>
-                      <div className="font-semibold text-sm">{camp.time}</div>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-3">
-                    <div className="bg-red-100 p-2 rounded-lg">
-                      <FaMapMarkerAlt className="text-red-600" />
-                    </div>
-                    <div>
-                      <div className="text-xs text-gray-500">Location</div>
-                      <div className="font-semibold text-sm">{camp.location}</div>
+                    
+                    {/* Header Gradient */}
+                    <div className="h-24 bg-gradient-to-r from-red-600 to-red-700 relative overflow-hidden">
+                      <div className="absolute inset-0 opacity-10">
+                        <div className="absolute -right-4 -top-4 w-24 h-24 bg-white rounded-full"></div>
+                        <div className="absolute -right-8 -top-8 w-32 h-32 border-8 border-white/20 rounded-full"></div>
+                      </div>
+                      
+                      {/* Reminder Badge */}
+                      {camp.reminders_sent && (
+                        <div className="absolute top-4 right-4 bg-green-500 text-white px-3 py-1 rounded-full text-xs font-semibold shadow-lg">
+                          ✓ Notified
+                        </div>
+                      )}
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-3">
-                    <div className="bg-red-100 p-2 rounded-lg">
-                      <FaUsers className="text-red-600" />
+                  {/* Camp Details */}
+                  <div className="p-6">
+                    <h3 className="text-xl font-bold text-gray-900 mb-4 line-clamp-2 group-hover:text-red-600 transition-colors">
+                      {camp.title}
+                    </h3>
+
+                    <div className="space-y-4">
+                      {/* Date */}
+                      <div className="flex items-start gap-3">
+                        <div className="bg-red-50 p-2 rounded-lg mt-0.5">
+                          <FaCalendarAlt className="text-red-600" />
+                        </div>
+                        <div>
+                          <p className="text-xs text-gray-500 font-medium">DATE</p>
+                          <p className="font-semibold text-gray-800">{camp.date}</p>
+                          <p className="text-xs text-gray-500">{camp.day}</p>
+                        </div>
+                      </div>
+
+                      {/* Time */}
+                      <div className="flex items-start gap-3">
+                        <div className="bg-red-50 p-2 rounded-lg mt-0.5">
+                          <FaClock className="text-red-600" />
+                        </div>
+                        <div>
+                          <p className="text-xs text-gray-500 font-medium">TIME</p>
+                          <p className="font-semibold text-gray-800">{camp.time}</p>
+                        </div>
+                      </div>
+
+                      {/* Location */}
+                      <div className="flex items-start gap-3">
+                        <div className="bg-red-50 p-2 rounded-lg mt-0.5">
+                          <FaMapMarkerAlt className="text-red-600" />
+                        </div>
+                        <div>
+                          <p className="text-xs text-gray-500 font-medium">LOCATION</p>
+                          <p className="font-semibold text-gray-800 line-clamp-1">{camp.location}</p>
+                          {camp.address !== camp.location && (
+                            <p className="text-xs text-gray-500 mt-1 line-clamp-1">{camp.address}</p>
+                          )}
+                        </div>
+                      </div>
                     </div>
-                    <div>
-                      <div className="text-xs text-gray-500">Volunteers</div>
-                      <div className="font-semibold text-sm">{camp.volunteers.length} assigned</div>
-                    </div>
+
+                    {/* View Details Button */}
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedCamp(camp);
+                      }}
+                      className="w-full mt-6 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white py-3 rounded-xl font-semibold transition-all duration-300 flex items-center justify-center gap-2 shadow-md hover:shadow-lg"
+                    >
+                      <FaHeartbeat />
+                      View Details
+                    </button>
                   </div>
                 </div>
-
-                {/* View Details Button - Only button remaining */}
-                <button
-                  onClick={() => setSelectedCamp(camp)}
-                  className="w-full bg-red-600 hover:bg-red-700 text-white py-3 rounded-xl font-semibold transition-colors flex items-center justify-center gap-2"
-                >
-                  <FaHeartbeat />
-                  View Details
-                </button>
-
-                
-              </div>
+              ))}
             </div>
-          ))}
-        </div>
+
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className="flex items-center justify-center gap-3 mt-12">
+                <button
+                  onClick={() => handlePageChange(currentPage - 1)}
+                  disabled={currentPage === 1}
+                  className={`w-10 h-10 rounded-lg flex items-center justify-center transition-all ${
+                    currentPage === 1
+                      ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                      : 'bg-white text-gray-700 hover:bg-red-50 hover:text-red-600 shadow-md hover:shadow-lg'
+                  }`}
+                >
+                  <FaChevronLeft />
+                </button>
+                
+                {[...Array(totalPages)].map((_, index) => (
+                  <button
+                    key={index + 1}
+                    onClick={() => handlePageChange(index + 1)}
+                    className={`w-10 h-10 rounded-lg font-semibold transition-all ${
+                      currentPage === index + 1
+                        ? 'bg-gradient-to-r from-red-600 to-red-700 text-white shadow-lg scale-110'
+                        : 'bg-white text-gray-700 hover:bg-red-50 hover:text-red-600 shadow-md hover:shadow-lg'
+                    }`}
+                  >
+                    {index + 1}
+                  </button>
+                ))}
+                
+                <button
+                  onClick={() => handlePageChange(currentPage + 1)}
+                  disabled={currentPage === totalPages}
+                  className={`w-10 h-10 rounded-lg flex items-center justify-center transition-all ${
+                    currentPage === totalPages
+                      ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                      : 'bg-white text-gray-700 hover:bg-red-50 hover:text-red-600 shadow-md hover:shadow-lg'
+                  }`}
+                >
+                  <FaChevronRight />
+                </button>
+              </div>
+            )}
+          </>
+        )}
       </div>
 
-      {/* Camp Details Modal - Simplified */}
+      {/* Camp Details Modal - Volunteers section removed */}
       {selectedCamp && (
-        <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-6">
-              {/* Header */}
-              <div className="flex justify-between items-start mb-6">
-                <div>
-                  <h2 className="text-2xl font-bold text-gray-900 mb-2">{selectedCamp.title}</h2>
-                  <div className="flex flex-wrap items-center gap-4 text-gray-600">
-                    <span className="flex items-center gap-2">
-                      <FaCalendarAlt /> {selectedCamp.date}
-                    </span>
-                    <span className="flex items-center gap-2">
-                      <FaClock /> {selectedCamp.time}
-                    </span>
-                  </div>
-                </div>
+        <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl">
+            {/* Modal Header */}
+            <div className="bg-gradient-to-r from-red-600 to-red-700 px-6 py-4 sticky top-0">
+              <div className="flex justify-between items-center">
+                <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                  <FaHeartbeat className="text-white" />
+                  Camp Details
+                </h2>
                 <button
                   onClick={() => setSelectedCamp(null)}
-                  className="text-gray-500 hover:text-gray-700 text-2xl"
+                  className="text-white/80 hover:text-white transition-colors text-2xl"
                 >
                   ×
                 </button>
               </div>
+            </div>
 
-              <div className="space-y-6">
-                {/* Location Details */}
-                <div>
-                  <h3 className="font-bold text-gray-900 mb-2 flex items-center gap-2">
-                    <FaMapMarkerAlt className="text-red-600" />
-                    Location
-                  </h3>
-                  <p className="text-gray-700">{selectedCamp.location}</p>
-                </div>
+            <div className="p-6">
+              {/* Camp Title */}
+              <h3 className="text-2xl font-bold text-gray-900 mb-4">{selectedCamp.title}</h3>
 
-                {/* Volunteers Info */}
-                <div>
-                  <h3 className="font-bold text-gray-900 mb-2 flex items-center gap-2">
-                    <FaUsers className="text-red-600" />
-                    Volunteers
-                  </h3>
-                  <div className="bg-gray-50 rounded-lg p-4">
-                    <div className="flex items-center gap-2 text-gray-600 mb-2">
-                      <span className="font-semibold">{selectedCamp.volunteers.length} volunteers</span>
-                      <span>assigned to this camp</span>
+              {/* Date and Time Row */}
+              <div className="bg-red-50 rounded-xl p-4 mb-6">
+                <div className="flex flex-wrap gap-6">
+                  <div className="flex items-center gap-3">
+                    <div className="bg-white p-2 rounded-lg">
+                      <FaCalendarAlt className="text-red-600" />
                     </div>
-                    <p className="text-sm text-gray-500">
-                      Volunteers will be notified 2 days before the camp
-                    </p>
+                    <div>
+                      <p className="text-xs text-gray-500">Date</p>
+                      <p className="font-semibold text-gray-900">{selectedCamp.date}</p>
+                      <p className="text-xs text-gray-600">{selectedCamp.day}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="bg-white p-2 rounded-lg">
+                      <FaClock className="text-red-600" />
+                    </div>
+                    <div>
+                      <p className="text-xs text-gray-500">Time</p>
+                      <p className="font-semibold text-gray-900">{selectedCamp.time}</p>
+                    </div>
                   </div>
                 </div>
+              </div>
 
-                {/* Reminder Status */}
-                {selectedCamp.reminders_sent && (
-                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                    <p className="text-blue-700 text-sm">
-                      ✓ Reminders have been sent to all volunteers
-                    </p>
-                  </div>
+              {/* Location */}
+              <div className="mb-6">
+                <h4 className="font-semibold text-gray-900 mb-2 flex items-center gap-2">
+                  <FaMapMarkerAlt className="text-red-600" />
+                  Location
+                </h4>
+                <p className="text-gray-700 font-medium">{selectedCamp.location}</p>
+                {selectedCamp.address && selectedCamp.address !== selectedCamp.location && (
+                  <p className="text-gray-600 text-sm mt-1">{selectedCamp.address}</p>
                 )}
+              </div>
 
-                {/* Contact Info */}
-                <div>
-                  <h3 className="font-bold text-gray-900 mb-2 flex items-center gap-2">
-                    <FaPhoneAlt className="text-red-600" />
-                    Contact
-                  </h3>
-                  <p className="text-gray-700">For more information, please contact our helpline: +91 98765 43210</p>
+              {/* Description */}
+              {selectedCamp.description && (
+                <div className="mb-6">
+                  <h4 className="font-semibold text-gray-900 mb-2 flex items-center gap-2">
+                    <FaFileAlt className="text-red-600" />
+                    About
+                  </h4>
+                  <p className="text-gray-700 bg-gray-50 p-4 rounded-xl">{selectedCamp.description}</p>
+                </div>
+              )}
+
+              {/* Reminder Status */}
+              {selectedCamp.reminders_sent && (
+                <div className="bg-green-50 border border-green-200 rounded-xl p-4 mb-6">
+                  <p className="text-green-700 text-sm flex items-center gap-2">
+                    <span className="bg-green-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">✓</span>
+                    Reminders have been sent to all volunteers
+                  </p>
+                </div>
+              )}
+
+              {/* Contact */}
+              <div className="mb-6">
+                <h4 className="font-semibold text-gray-900 mb-2 flex items-center gap-2">
+                  <FaPhoneAlt className="text-red-600" />
+                  Contact
+                </h4>
+                <div className="bg-gray-50 rounded-xl p-4">
+                  <p className="text-gray-600 mb-2">For more information, please contact:</p>
+                  <p className="text-red-600 font-bold text-lg">+91 98765 43210</p>
+                  <p className="text-xs text-gray-500 mt-2">24/7 Helpline</p>
                 </div>
               </div>
 
               {/* Close Button */}
-              <div className="mt-8 pt-6 border-t">
-                <button
-                  onClick={() => setSelectedCamp(null)}
-                  className="w-full bg-gray-600 hover:bg-gray-700 text-white py-3 rounded-xl font-semibold transition-colors"
-                >
-                  Close
-                </button>
-              </div>
+              <button
+                onClick={() => setSelectedCamp(null)}
+                className="w-full bg-gray-600 hover:bg-gray-700 text-white py-3 rounded-xl font-semibold transition-colors"
+              >
+                Close
+              </button>
             </div>
           </div>
         </div>

@@ -616,7 +616,7 @@ const BloodRequestList = () => {
         <div className="bg-white rounded-2xl shadow-2xl border border-blue-100 overflow-hidden">
           {/* Header */}
           <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-8 py-6">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
               <div className="flex items-center gap-4">
                 <div className="bg-white/20 p-3 rounded-full">
                   <FaClipboardList className="text-white text-3xl" />
@@ -680,8 +680,8 @@ const BloodRequestList = () => {
             </div>
           )}
 
-          {/* Statistics Cards */}
-          <div className="grid grid-cols-2 md:grid-cols-7 gap-4 p-8">
+          {/* Statistics Cards - FIXED GRID */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-4 p-8">
             <StatCard label="Total" value={stats.total} color="blue" icon={FaClipboardList} />
             <StatCard label="Pending" value={stats.pending} color="yellow" icon={FaClock} />
             <StatCard label="Approved" value={stats.approved} color="green" icon={FaCheckCircle} />
@@ -691,11 +691,11 @@ const BloodRequestList = () => {
             <StatCard label="Urgent" value={stats.urgent} color="orange" icon={FaExclamationTriangle} />
           </div>
 
-          {/* Filters */}
+          {/* Filters - FIXED GRID */}
           <div className="px-8 pb-6">
-            <div className="grid grid-cols-1 md:grid-cols-7 gap-4">
-              {/* Search */}
-              <div className="relative md:col-span-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-7 gap-4">
+              {/* Search - spans 2 columns on lg screens */}
+              <div className="relative lg:col-span-2">
                 <input
                   type="text"
                   name="search"
@@ -972,7 +972,7 @@ const BloodRequestList = () => {
 
               {/* Pagination */}
               {filteredRequests.length > 0 && (
-                <div className="px-8 py-4 border-t border-gray-200 flex items-center justify-between">
+                <div className="px-8 py-4 border-t border-gray-200 flex flex-col sm:flex-row items-center justify-between gap-4">
                   <div className="text-sm text-gray-500">
                     Showing {indexOfFirstRequest + 1} to {Math.min(indexOfLastRequest, filteredRequests.length)} of {filteredRequests.length} requests
                   </div>
@@ -1066,14 +1066,14 @@ const StatCard = ({ label, value, color, icon: Icon }) => {
   };
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm hover:shadow-md transition-shadow">
-      <div className="flex items-center gap-3">
-        <div className={`p-3 rounded-xl ${colors[color]}`}>
-          <Icon />
+    <div className="bg-white rounded-xl border border-gray-200 p-3 sm:p-4 shadow-sm hover:shadow-md transition-shadow">
+      <div className="flex items-center gap-2 sm:gap-3">
+        <div className={`p-2 sm:p-3 rounded-xl ${colors[color]}`}>
+          <Icon className="text-base sm:text-lg" />
         </div>
-        <div>
-          <p className="text-sm text-gray-500">{label}</p>
-          <p className="text-2xl font-bold text-gray-900">{value}</p>
+        <div className="min-w-0">
+          <p className="text-xs sm:text-sm text-gray-500 truncate">{label}</p>
+          <p className="text-lg sm:text-2xl font-bold text-gray-900">{value}</p>
         </div>
       </div>
     </div>
@@ -1093,8 +1093,8 @@ const RequestDetailsModal = ({ request, onClose, loading, getStatusBadge, getUrg
   }
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 overflow-y-auto">
+      <div className="bg-white rounded-2xl max-w-2xl w-full my-8">
         <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-4 rounded-t-2xl flex items-center justify-between sticky top-0">
           <h2 className="text-xl font-bold text-white">Request Details</h2>
           <button
@@ -1105,9 +1105,9 @@ const RequestDetailsModal = ({ request, onClose, loading, getStatusBadge, getUrg
           </button>
         </div>
 
-        <div className="p-6 space-y-6">
+        <div className="p-6 space-y-6 max-h-[calc(90vh-100px)] overflow-y-auto">
           {/* Status Badges */}
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
             {getStatusBadge(request.status)}
             {getUrgencyBadge(request.urgency)}
           </div>
@@ -1118,12 +1118,12 @@ const RequestDetailsModal = ({ request, onClose, loading, getStatusBadge, getUrg
               <FaUser className="text-blue-600" />
               Patient Information
             </h3>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <DetailItem label="Patient Name" value={request.patient_name} />
               <DetailItem label="Age/Gender" value={`${request.patient_age} yrs / ${request.patient_gender}`} />
               <DetailItem label="Blood Type" value={request.blood_type} icon={<FaTint className="text-red-500" />} />
               <DetailItem label="Units Required" value={`${request.units_required} units`} />
-              <DetailItem label="Diagnosis" value={request.diagnosis || 'N/A'} className="col-span-2" />
+              <DetailItem label="Diagnosis" value={request.diagnosis || 'N/A'} className="sm:col-span-2" />
             </div>
           </div>
 
@@ -1133,7 +1133,7 @@ const RequestDetailsModal = ({ request, onClose, loading, getStatusBadge, getUrg
               <FaMapMarkerAlt className="text-blue-600" />
               Hospital Information
             </h3>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <DetailItem label="Hospital" value={request.hospital} />
               <DetailItem label="Ward/Department" value={request.ward_number || 'N/A'} />
               <DetailItem label="Doctor Name" value={request.doctor_name || 'N/A'} />
@@ -1147,7 +1147,7 @@ const RequestDetailsModal = ({ request, onClose, loading, getStatusBadge, getUrg
               <FaUser className="text-blue-600" />
               Requester Information
             </h3>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <DetailItem label="Requested By" value={request.requested_by} />
               <DetailItem label="Contact" value={request.requester_contact || 'N/A'} />
               <DetailItem label="Email" value={request.requester_email || 'N/A'} />
@@ -1162,7 +1162,7 @@ const RequestDetailsModal = ({ request, onClose, loading, getStatusBadge, getUrg
                 <FaNotesMedical className="text-blue-600" />
                 Additional Notes
               </h3>
-              <p className="text-gray-700">{request.notes}</p>
+              <p className="text-gray-700 break-words">{request.notes}</p>
             </div>
           )}
 
@@ -1172,7 +1172,7 @@ const RequestDetailsModal = ({ request, onClose, loading, getStatusBadge, getUrg
               <FaClock className="text-blue-600" />
               Timeline
             </h3>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <DetailItem label="Requested On" value={formatDate(request.createdAt)} />
               <DetailItem label="Last Updated" value={formatDate(request.updatedAt)} />
               {request.fulfilled_date && (
@@ -1185,7 +1185,7 @@ const RequestDetailsModal = ({ request, onClose, loading, getStatusBadge, getUrg
           </div>
 
           {/* Close Button */}
-          <div className="flex justify-end pt-4">
+          <div className="flex justify-end pt-4 sticky bottom-0 bg-white pb-2">
             <button
               onClick={onClose}
               className="px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
@@ -1202,8 +1202,8 @@ const RequestDetailsModal = ({ request, onClose, loading, getStatusBadge, getUrg
 // Edit Request Modal
 const EditRequestModal = ({ formData, errors, loading, onClose, onChange, onSubmit, bloodTypes, urgencyTypes, genderTypes }) => {
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 overflow-y-auto">
+      <div className="bg-white rounded-2xl max-w-3xl w-full my-8">
         <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-4 rounded-t-2xl flex items-center justify-between sticky top-0">
           <h2 className="text-xl font-bold text-white">Edit Request</h2>
           <button
@@ -1214,14 +1214,14 @@ const EditRequestModal = ({ formData, errors, loading, onClose, onChange, onSubm
           </button>
         </div>
 
-        <form onSubmit={onSubmit} className="p-6 space-y-6">
+        <form onSubmit={onSubmit} className="p-6 space-y-6 max-h-[calc(90vh-100px)] overflow-y-auto">
           {/* Patient Information */}
           <div className="bg-gray-50 rounded-xl p-4">
             <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
               <FaUser className="text-blue-600" />
               Patient Information
             </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Patient Name *
@@ -1343,7 +1343,7 @@ const EditRequestModal = ({ formData, errors, loading, onClose, onChange, onSubm
                 </select>
               </div>
 
-              <div className="md:col-span-2">
+              <div className="sm:col-span-2">
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Diagnosis
                 </label>
@@ -1365,7 +1365,7 @@ const EditRequestModal = ({ formData, errors, loading, onClose, onChange, onSubm
               <FaMapMarkerAlt className="text-blue-600" />
               Hospital Information
             </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Hospital *
@@ -1432,7 +1432,7 @@ const EditRequestModal = ({ formData, errors, loading, onClose, onChange, onSubm
               <FaUser className="text-blue-600" />
               Requester Information
             </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Requested By *
@@ -1511,18 +1511,18 @@ const EditRequestModal = ({ formData, errors, loading, onClose, onChange, onSubm
           </div>
 
           {/* Form Actions */}
-          <div className="flex gap-3 pt-4">
+          <div className="flex flex-col sm:flex-row gap-3 pt-4 sticky bottom-0 bg-white pb-2">
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 px-4 py-3 border border-gray-300 rounded-xl text-gray-700 font-medium hover:bg-gray-50 transition-colors"
+              className="flex-1 px-4 py-3 border border-gray-300 rounded-xl text-gray-700 font-medium hover:bg-gray-50 transition-colors order-2 sm:order-1"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="flex-1 px-4 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-medium rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-colors disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="flex-1 px-4 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-medium rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-colors disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2 order-1 sm:order-2"
             >
               {loading ? (
                 <>
@@ -1543,7 +1543,6 @@ const EditRequestModal = ({ formData, errors, loading, onClose, onChange, onSubm
   );
 };
 
-// Confirmation Modal
 // Confirmation Modal
 const ConfirmationModal = ({ request, action, onClose, onConfirm, loading }) => {
   const actionConfig = {
@@ -1599,7 +1598,7 @@ const ConfirmationModal = ({ request, action, onClose, onConfirm, loading }) => 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-2xl max-w-md w-full">
-          <div className={`bg-gradient-to-r ${config.bgFrom} ${config.bgTo} px-6 py-4 rounded-t-2xl`}>
+        <div className={`bg-gradient-to-r ${config.bgFrom} ${config.bgTo} px-6 py-4 rounded-t-2xl`}>
           <h2 className="text-xl font-bold text-white flex items-center gap-2">
             <Icon />
             {config.title}
@@ -1609,7 +1608,7 @@ const ConfirmationModal = ({ request, action, onClose, onConfirm, loading }) => 
         <div className="p-6 space-y-4">
           <p className="text-gray-700">{config.message}</p>
           
-          <div className="bg-gray-50 p-4 rounded-xl">
+          <div className="bg-gray-50 p-4 rounded-xl space-y-2">
             <p className="text-sm">
               <span className="font-medium">Request ID:</span> {request._id.slice(-8)}
             </p>
@@ -1624,10 +1623,10 @@ const ConfirmationModal = ({ request, action, onClose, onConfirm, loading }) => 
             </p>
           </div>
 
-          <div className="flex gap-3 pt-4">
+          <div className="flex flex-col sm:flex-row gap-3 pt-4">
             <button
               onClick={onClose}
-              className="flex-1 px-4 py-3 border border-gray-300 rounded-xl text-gray-700 font-medium hover:bg-gray-50 transition-colors"
+              className="flex-1 px-4 py-3 border border-gray-300 rounded-xl text-gray-700 font-medium hover:bg-gray-50 transition-colors order-2 sm:order-1"
               disabled={loading}
             >
               Cancel
@@ -1635,7 +1634,7 @@ const ConfirmationModal = ({ request, action, onClose, onConfirm, loading }) => 
             <button
               onClick={onConfirm}
               disabled={loading}
-              className={`flex-1 px-4 py-3 bg-gradient-to-r ${config.bgFrom} ${config.bgTo} text-white font-medium rounded-xl ${config.hoverFrom} ${config.hoverTo} transition-colors disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2`}
+              className={`flex-1 px-4 py-3 bg-gradient-to-r ${config.bgFrom} ${config.bgTo} text-white font-medium rounded-xl ${config.hoverFrom} ${config.hoverTo} transition-colors disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2 order-1 sm:order-2`}
             >
               {loading ? (
                 <>
@@ -1660,7 +1659,7 @@ const ConfirmationModal = ({ request, action, onClose, onConfirm, loading }) => 
 const DetailItem = ({ label, value, icon, className = '' }) => (
   <div className={className}>
     <p className="text-xs text-gray-500 mb-1">{label}</p>
-    <p className="text-sm font-medium flex items-center gap-1">
+    <p className="text-sm font-medium flex items-center gap-1 break-words">
       {icon}
       {value}
     </p>

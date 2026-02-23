@@ -213,36 +213,56 @@ router.get("/donors/:donor_code/donations", protect, authorize('admin','technici
     }
 })
 
-router.post("/donors/:donor_code/donate", protect, authorize('admin','technician'), async (req, res) => {
+router.post("/donors/:donor_code/donate", protect, authorize('admin', 'technician'), async (req, res) => {
     try {
-        const { donor_code, donation_date, quantity_ml } = req.body;
+        const { donor_code, donation_date, quantity_ml, components } = req.body;
 
-        const donor = await Donor.findOne({ donor_code })
-        if (!donor){
-            return res.status(404).json({message:"donor not found"})
+        // Validate components field is provided
+        if (!components) {
+            return res.status(400).json({ message: "Components field is required" });
+        }
+
+        // Validate components value is in enum
+        const validComponents = ['whole_blood', 'rbc', 'plasma', 'platelets'];
+        if (!validComponents.includes(components)) {
+            return res.status(400).json({ 
+                message: "Invalid components value. Must be one of: whole_blood, rbc, plasma, platelets" 
+            });
+        }
+
+        const donor = await Donor.findOne({ donor_code });
+        if (!donor) {
+            return res.status(404).json({ message: "Donor not found" });
         }
 
         const donation = new Donation({
-           donor_id:donor._id,
+            donor_id: donor._id,
             donation_date,
-            quantity_ml
-        })
-        await donation.save()
+            quantity_ml,
+            components // Added components field
+        });
+        await donation.save();
 
-            
-            donor.last_donation= donation_date;
-            donor.total_donations +=1;
-            donor.is_eligible = false;
+        donor.last_donation = donation_date;
+        donor.total_donations += 1;
+        donor.is_eligible = false;
 
-            await donor.save();
-      
-        res.status(201).json({ message: "Donation recorded successfully" });
+        await donor.save();
+
+        res.status(201).json({ 
+            message: "Donation recorded successfully",
+            donation: {
+                id: donation._id,
+                donor_code: donor.donor_code,
+                donation_date,
+                quantity_ml,
+                components
+            }
+        });
     } catch (err) {
         res.status(400).json({ error: err.message });
     }
-
-})
-
+});
 
 
 
