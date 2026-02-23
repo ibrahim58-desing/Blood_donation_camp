@@ -106,7 +106,7 @@ const DonationHistory = () => {
       console.log("Searching for donor with code:", code);
       
       // Get donor details
-      const donorResponse = await axios.get(`http://localhost:5000/api/donors/${code}`, {
+      const donorResponse = await axios.get(`https://blood-donation-camp-backend-wmhh.onrender.com/api/donors/${code}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       
@@ -115,7 +115,7 @@ const DonationHistory = () => {
 
       // Get donation history for this donor
       console.log("Fetching donations for donor code:", code);
-      const donationsResponse = await axios.get(`http://localhost:5000/api/donors/${code}/donations`, {
+      const donationsResponse = await axios.get(`https://blood-donation-camp-backend-wmhh.onrender.com/api/donors/${code}/donations`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       

@@ -154,7 +154,7 @@ const BloodRequestList = () => {
       const token = localStorage.getItem('token');
       console.log('Fetching requests...');
       
-      const response = await axios.get('http://localhost:5000/api/requests', {
+      const response = await axios.get('https://blood-donation-camp-backend-wmhh.onrender.com/api/requests', {
         headers: { 
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -204,7 +204,7 @@ const BloodRequestList = () => {
     setDetailsLoading(true);
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get(`http://localhost:5000/api/requests/${id}`, {
+      const response = await axios.get(`https://blood-donation-camp-backend-wmhh.onrender.com/api/requests/${id}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       
@@ -240,7 +240,7 @@ const BloodRequestList = () => {
       switch(confirmAction) {
         case 'approve':
           response = await axios.put(
-            `http://localhost:5000/api/requests/${confirmRequest._id}/approve`,
+            `https://blood-donation-camp-backend-wmhh.onrender.com/api/requests/${confirmRequest._id}/approve`,
             {},
             { headers: { 'Authorization': `Bearer ${token}` } }
           );
@@ -249,7 +249,7 @@ const BloodRequestList = () => {
           
         case 'reject':
           response = await axios.put(
-            `http://localhost:5000/api/requests/${confirmRequest._id}/reject`,
+            `https://blood-donation-camp-backend-wmhh.onrender.com/api/requests/${confirmRequest._id}/reject`,
             {},
             { headers: { 'Authorization': `Bearer ${token}` } }
           );
@@ -258,7 +258,7 @@ const BloodRequestList = () => {
           
         case 'fulfill':
           response = await axios.put(
-            `http://localhost:5000/api/requests/${confirmRequest._id}/fulfill`,
+            `https://blood-donation-camp-backend-wmhh.onrender.com/api/requests/${confirmRequest._id}/fulfill`,
             {},
             { headers: { 'Authorization': `Bearer ${token}` } }
           );
@@ -267,7 +267,7 @@ const BloodRequestList = () => {
           
         case 'cancel':
           response = await axios.put(
-            `http://localhost:5000/api/requests/${confirmRequest._id}/cancel`,
+            `https://blood-donation-camp-backend-wmhh.onrender.com/api/requests/${confirmRequest._id}/cancel`,
             {},
             { headers: { 'Authorization': `Bearer ${token}` } }
           );
@@ -369,7 +369,7 @@ const BloodRequestList = () => {
     try {
       const token = localStorage.getItem('token');
       const response = await axios.put(
-        `http://localhost:5000/api/requests/${editingRequest._id}`,
+        `https://blood-donation-camp-backend-wmhh.onrender.com/api/requests/${editingRequest._id}`,
         editFormData,
         {
           headers: { 

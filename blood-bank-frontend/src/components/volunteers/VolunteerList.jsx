@@ -73,7 +73,7 @@ const VolunteerList = () => {
     setLoading(true);
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get('http://localhost:5000/api/volunteers', {
+      const response = await axios.get('https://blood-donation-camp-backend-wmhh.onrender.com/api/volunteers', {
         headers: { Authorization: `Bearer ${token}` }
       });
       
@@ -143,7 +143,7 @@ const VolunteerList = () => {
     try {
       const token = localStorage.getItem('token');
       await axios.put(
-        `http://localhost:5000/api/volunteers/${volunteerToEdit._id}`,
+        `https://blood-donation-camp-backend-wmhh.onrender.com/api/volunteers/${volunteerToEdit._id}`,
         editFormData,
         {
           headers: { 
@@ -178,7 +178,7 @@ const VolunteerList = () => {
     setDeleting(true);
     try {
       const token = localStorage.getItem('token');
-      await axios.delete(`http://localhost:5000/api/volunteers/${volunteerToDelete._id}`, {
+      await axios.delete(`https://blood-donation-camp-backend-wmhh.onrender.com/api/volunteers/${volunteerToDelete._id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       

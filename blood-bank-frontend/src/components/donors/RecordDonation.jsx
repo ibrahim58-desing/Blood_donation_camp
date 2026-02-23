@@ -143,7 +143,7 @@ const RecordDonation = () => {
 
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get(`http://localhost:5000/api/donors/${code}`, {
+      const response = await axios.get(`https://blood-donation-camp-backend-wmhh.onrender.com/api/donors/${code}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
 
@@ -222,7 +222,7 @@ const RecordDonation = () => {
       };
 
       const response = await axios.post(
-        `http://localhost:5000/api/donors/${donor.donor_code}/donate`,
+        `https://blood-donation-camp-backend-wmhh.onrender.com/api/donors/${donor.donor_code}/donate`,
         donationData,
         {
           headers: {

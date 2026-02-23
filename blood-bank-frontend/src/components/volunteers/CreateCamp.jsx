@@ -167,7 +167,7 @@ const CreateCamp = () => {
       
       // Send data exactly as your API expects
       const response = await axios.post(
-        'http://localhost:5000/api/camps',
+        'https://blood-donation-camp-backend-wmhh.onrender.com/api/camps',
         {
           name: formData.name,
           date: formData.date,

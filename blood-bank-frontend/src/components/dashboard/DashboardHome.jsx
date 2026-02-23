@@ -73,10 +73,10 @@ const DashboardHome = () => {
         inventoryResponse,
         requestsResponse
       ] = await Promise.all([
-        axios.get('http://localhost:5000/api/reports/dashboard', { headers }),
-        axios.get('http://localhost:5000/api/reports/donations', { headers }),
-        axios.get('http://localhost:5000/api/reports/inventory', { headers }),
-        axios.get('http://localhost:5000/api/reports/requests', { headers })
+        axios.get('https://blood-donation-camp-backend-wmhh.onrender.com/api/reports/dashboard', { headers }),
+        axios.get('https://blood-donation-camp-backend-wmhh.onrender.com/api/reports/donations', { headers }),
+        axios.get('https://blood-donation-camp-backend-wmhh.onrender.com/api/reports/inventory', { headers }),
+        axios.get('https://blood-donation-camp-backend-wmhh.onrender.com/api/reports/requests', { headers })
       ]);
 
       setDashboardData(dashboardResponse.data);

@@ -67,7 +67,7 @@ const VolunteerRegistration = () => {
 
     try {
       const response = await axios.post(
-        'http://localhost:5000/api/volunteers/register',
+        'https://blood-donation-camp-backend-wmhh.onrender.com/api/volunteers/register',
         formData
       );
 

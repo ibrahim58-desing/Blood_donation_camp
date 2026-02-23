@@ -91,7 +91,7 @@ const fetchExpiringUnits = async () => {
         const token = localStorage.getItem('token');
         console.log('Fetching expiring units...');
         
-        const response = await axios.get('http://localhost:5000/api/inventory/expiring', {
+        const response = await axios.get('https://blood-donation-camp-backend-wmhh.onrender.com/api/inventory/expiring', {
             headers: { 
                 'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json'
@@ -264,7 +264,7 @@ const getDaysUntilExpiry = (expiryDate) => {
     try {
       const token = localStorage.getItem('token');
       const response = await axios.put(
-        `http://localhost:5000/api/inventory/${selectedUnit._id}/status`,
+        `https://blood-donation-camp-backend-wmhh.onrender.com/api/inventory/${selectedUnit._id}/status`,
         { 
           status: newStatus,
           reason: updateReason 
@@ -319,7 +319,7 @@ const getDaysUntilExpiry = (expiryDate) => {
     try {
       const token = localStorage.getItem('token');
       await axios.put(
-        `http://localhost:5000/api/inventory/${unit._id}/status`,
+        `https://blood-donation-camp-backend-wmhh.onrender.com/api/inventory/${unit._id}/status`,
         { status: newStatus },
         {
           headers: { 'Authorization': `Bearer ${token}` }

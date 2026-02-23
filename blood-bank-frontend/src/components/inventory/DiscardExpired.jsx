@@ -82,7 +82,7 @@ const DiscardExpired = () => {
             console.log('Fetching expired units...');
 
             // Get all inventory and filter expired
-            const response = await axios.get('http://localhost:5000/api/inventory', {
+            const response = await axios.get('https://blood-donation-camp-backend-wmhh.onrender.com/api/inventory', {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
@@ -213,7 +213,7 @@ const DiscardExpired = () => {
             // Your API expects a POST to /inventory/discard
             // Let's send the unit IDs that need to be discarded
             const response = await axios.post(
-                'http://localhost:5000/api/inventory/discard',
+                'https://blood-donation-camp-backend-wmhh.onrender.com/api/inventory/discard',
                 {
                     unitIds: selectedUnits.map(unit => unit._id), // Send the IDs of units to discard
                     status: 'discarded' // Optional: send the new status

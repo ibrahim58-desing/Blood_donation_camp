@@ -60,7 +60,7 @@ const AddBloodUnit = () => {
   const fetchDonors = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get('http://localhost:5000/api/donors', {
+      const response = await axios.get('https://blood-donation-camp-backend-wmhh.onrender.com/api/donors', {
         headers: { Authorization: `Bearer ${token}` }
       });
       setDonors(response.data);
@@ -107,7 +107,7 @@ const AddBloodUnit = () => {
       const token = localStorage.getItem('token');
       
       const response = await axios.post(
-        'http://localhost:5000/api/inventory',
+        'https://blood-donation-camp-backend-wmhh.onrender.com/api/inventory',
         formData,
         {
           headers: {

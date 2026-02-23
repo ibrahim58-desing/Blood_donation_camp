@@ -11,7 +11,7 @@ const DebugExpiring = () => {
     setLoading(true);
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get('http://localhost:5000/api/inventory/debug/expiring', {
+      const response = await axios.get('https://blood-donation-camp-backend-wmhh.onrender.com/api/inventory/debug/expiring', {
         headers: { Authorization: `Bearer ${token}` }
       });
       setDebugData(response.data);
@@ -27,7 +27,7 @@ const DebugExpiring = () => {
     setLoading(true);
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.post('http://localhost:5000/api/inventory/test/create-expiring', {}, {
+      const response = await axios.post('https://blood-donation-camp-backend-wmhh.onrender.com/api/inventory/test/create-expiring', {}, {
         headers: { Authorization: `Bearer ${token}` }
       });
       alert('Test data created!');

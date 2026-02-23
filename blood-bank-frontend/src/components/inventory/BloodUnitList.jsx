@@ -120,7 +120,7 @@ const BloodUnitList = () => {
     setLoading(true);
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get('http://localhost:5000/api/inventory', {
+      const response = await axios.get('https://blood-donation-camp-backend-wmhh.onrender.com/api/inventory', {
         headers: { Authorization: `Bearer ${token}` }
       });
       
@@ -319,7 +319,7 @@ const BloodUnitList = () => {
       console.log('Sending update data:', updateData); // For debugging
 
       const response = await axios.put(
-        `http://localhost:5000/api/inventory/${editingUnit._id}`,
+        `https://blood-donation-camp-backend-wmhh.onrender.com/api/inventory/${editingUnit._id}`,
         updateData,
         {
           headers: { 
@@ -373,7 +373,7 @@ const BloodUnitList = () => {
     try {
       const token = localStorage.getItem('token');
       await axios.delete(
-        `http://localhost:5000/api/inventory/${deletingUnit._id}`,
+        `https://blood-donation-camp-backend-wmhh.onrender.com/api/inventory/${deletingUnit._id}`,
         {
           headers: { 'Authorization': `Bearer ${token}` }
         }

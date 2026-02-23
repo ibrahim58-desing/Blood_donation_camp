@@ -44,7 +44,7 @@ const EligibleDonors = () => {
     setLoading(true);
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get('http://localhost:5000/api/donors/eligible', {
+      const response = await axios.get('https://blood-donation-camp-backend-wmhh.onrender.com/api/donors/eligible', {
         headers: { Authorization: `Bearer ${token}` }
       });
       setDonors(response.data);

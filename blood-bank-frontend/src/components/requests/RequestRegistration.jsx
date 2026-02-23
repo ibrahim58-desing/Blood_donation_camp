@@ -99,7 +99,7 @@ const RequestRegistration = () => {
     try {
       // PUBLIC ROUTE - No token needed
       const response = await axios.post(
-        'http://localhost:5000/api/requests',
+        'https://blood-donation-camp-backend-wmhh.onrender.com/api/requests',
         formData,
         {
           headers: {
