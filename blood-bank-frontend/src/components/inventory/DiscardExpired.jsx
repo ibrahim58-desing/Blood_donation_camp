@@ -1,6 +1,7 @@
 // components/inventory/DiscardExpired.jsx
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { API_URL } from "../api.js";
 import axios from 'axios';
 import {
     FaTrash,
@@ -82,7 +83,7 @@ const DiscardExpired = () => {
             console.log('Fetching expired units...');
 
             // Get all inventory and filter expired
-            const response = await axios.get('https://blood-donation-camp-backend-wmhh.onrender.com/api/inventory', {
+            const response = await axios.get(`${API_URL}/api/inventory`, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
@@ -213,7 +214,7 @@ const DiscardExpired = () => {
             // Your API expects a POST to /inventory/discard
             // Let's send the unit IDs that need to be discarded
             const response = await axios.post(
-                'https://blood-donation-camp-backend-wmhh.onrender.com/api/inventory/discard',
+                `${API_URL}/api/inventory/discard`,
                 {
                     unitIds: selectedUnits.map(unit => unit._id), // Send the IDs of units to discard
                     status: 'discarded' // Optional: send the new status

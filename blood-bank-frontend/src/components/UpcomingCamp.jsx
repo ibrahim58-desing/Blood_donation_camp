@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { API_URL } from "../api.js";
 import { 
   FaCalendarAlt, 
   FaMapMarkerAlt, 
@@ -31,7 +32,7 @@ const UpcomingCamps = () => {
     setError('');
     
     try {
-      const response = await axios.get('https://blood-donation-camp-backend-wmhh.onrender.com/api/camps/upcoming');
+      const response = await axios.get(`${API_URL}/api/camps/upcoming`);
       
       console.log('Fetched camps response:', response.data);
       

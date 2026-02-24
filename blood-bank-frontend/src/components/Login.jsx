@@ -31,7 +31,7 @@ const Login = () => {
 
         try {
             // Use the regular login endpoint (your backend handles role checking)
-            const response = await axios.post('http://localhost:5000/api/login', formData);
+            const response = await axios.post(`${API_URL}/api/login`, formData);
 
             console.log('Response status:', response.status);
             console.log('Response data:', response.data);

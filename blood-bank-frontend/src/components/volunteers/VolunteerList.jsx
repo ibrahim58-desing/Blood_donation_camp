@@ -1,6 +1,7 @@
 // components/volunteers/VolunteerList.jsx
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { API_URL } from "../api.js";
 import axios from 'axios';
 import { 
   FaUsers, 
@@ -73,7 +74,7 @@ const VolunteerList = () => {
     setLoading(true);
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get('https://blood-donation-camp-backend-wmhh.onrender.com/api/volunteers', {
+      const response = await axios.get(`${API_URL}/api/volunteers`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       
@@ -143,7 +144,7 @@ const VolunteerList = () => {
     try {
       const token = localStorage.getItem('token');
       await axios.put(
-        `https://blood-donation-camp-backend-wmhh.onrender.com/api/volunteers/${volunteerToEdit._id}`,
+        `${API_URL}/api/volunteers/${volunteerToEdit._id}`,
         editFormData,
         {
           headers: { 
@@ -178,7 +179,7 @@ const VolunteerList = () => {
     setDeleting(true);
     try {
       const token = localStorage.getItem('token');
-      await axios.delete(`https://blood-donation-camp-backend-wmhh.onrender.com/api/volunteers/${volunteerToDelete._id}`, {
+      await axios.delete(`${API_URL}/api/volunteers/${volunteerToDelete._id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       

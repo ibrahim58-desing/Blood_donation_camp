@@ -1,6 +1,7 @@
 // components/inventory/BloodUnitList.jsx
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { API_URL } from "../api.js";
 import axios from 'axios';
 import { 
   FaBoxes, 
@@ -120,7 +121,7 @@ const BloodUnitList = () => {
     setLoading(true);
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get('https://blood-donation-camp-backend-wmhh.onrender.com/api/inventory', {
+      const response = await axios.get(`${API_URL}/api/inventory`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       
@@ -319,7 +320,7 @@ const BloodUnitList = () => {
       console.log('Sending update data:', updateData); // For debugging
 
       const response = await axios.put(
-        `https://blood-donation-camp-backend-wmhh.onrender.com/api/inventory/${editingUnit._id}`,
+        `${API_URL}/api/inventory/${editingUnit._id}`,
         updateData,
         {
           headers: { 
@@ -373,7 +374,7 @@ const BloodUnitList = () => {
     try {
       const token = localStorage.getItem('token');
       await axios.delete(
-        `https://blood-donation-camp-backend-wmhh.onrender.com/api/inventory/${deletingUnit._id}`,
+        `${API_URL}/api/inventory/${deletingUnit._id}`,
         {
           headers: { 'Authorization': `Bearer ${token}` }
         }

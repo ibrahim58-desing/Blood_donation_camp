@@ -1,6 +1,7 @@
 // components/volunteers/VolunteerRegistration.jsx
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { API_URL } from "../api.js";
 import axios from 'axios';
 import { 
   FaUserPlus, 
@@ -67,7 +68,7 @@ const VolunteerRegistration = () => {
 
     try {
       const response = await axios.post(
-        'https://blood-donation-camp-backend-wmhh.onrender.com/api/volunteers/register',
+        `${API_URL}/api/volunteers/register`,
         formData
       );
 

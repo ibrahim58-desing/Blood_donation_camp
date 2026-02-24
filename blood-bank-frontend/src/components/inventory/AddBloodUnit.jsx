@@ -1,6 +1,7 @@
 // components/inventory/AddBloodUnit.jsx
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { API_URL } from "../api.js";
 import axios from 'axios';
 import { 
   FaBoxes, 
@@ -60,7 +61,7 @@ const AddBloodUnit = () => {
   const fetchDonors = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get('https://blood-donation-camp-backend-wmhh.onrender.com/api/donors', {
+      const response = await axios.get(`${API_URL}/api/donors`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setDonors(response.data);
@@ -107,7 +108,7 @@ const AddBloodUnit = () => {
       const token = localStorage.getItem('token');
       
       const response = await axios.post(
-        'https://blood-donation-camp-backend-wmhh.onrender.com/api/inventory',
+        `${API_URL}/api/inventory`,
         formData,
         {
           headers: {

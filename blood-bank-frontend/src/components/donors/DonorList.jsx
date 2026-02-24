@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { API_URL } from "../api.js";
 import axios from 'axios';
 import {
   FaSearch,
@@ -95,7 +96,7 @@ const DonorList = () => {
     setLoading(true);
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get('https://blood-donation-camp-backend-wmhh.onrender.com/api/donors', {
+      const response = await axios.get(`${API_URL}/api/donors`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setDonors(response.data);
@@ -254,7 +255,7 @@ const DonorList = () => {
       console.log('Update data:', updateData);
       
       const response = await axios.put(
-        `https://blood-donation-camp-backend-wmhh.onrender.com/api/donors/${editingDonor.donor_code}`,
+        `${API_URL}/api/donors/${editingDonor.donor_code}`,
         updateData,
         {
           headers: { 
@@ -322,7 +323,7 @@ const DonorList = () => {
     try {
       const token = localStorage.getItem('token');
       await axios.delete(
-        `https://blood-donation-camp-backend-wmhh.onrender.com/api/donors/${deletingDonor.donor_code}`,
+        `${API_URL}/api/donors/${deletingDonor.donor_code}`,
         {
           headers: { 'Authorization': `Bearer ${token}` }
         }

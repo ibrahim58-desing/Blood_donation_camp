@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import DonorRegistration from './donors/DonorRegistration.jsx';
+import { API_URL } from "../api.js";
 import axios from 'axios';
 import {
   FaTachometerAlt,
@@ -113,10 +114,10 @@ const Dashboard = () => {
         inventoryResponse,
         requestsResponse
       ] = await Promise.all([
-        axios.get('https://blood-donation-camp-backend-wmhh.onrender.com/api/reports/dashboard', { headers }),
-        axios.get('https://blood-donation-camp-backend-wmhh.onrender.com/api/reports/donations', { headers }),
-        axios.get('https://blood-donation-camp-backend-wmhh.onrender.com/api/reports/inventory', { headers }),
-        axios.get('https://blood-donation-camp-backend-wmhh.onrender.com/api/reports/requests', { headers })
+        axios.get(`${API_URL}/api/reports/dashboard`, { headers }),
+        axios.get(`${API_URL}/api/reports/donations`, { headers }),
+        axios.get(`${API_URL}/api/reports/inventory`, { headers }),
+        axios.get(`${API_URL}/api/reports/requests`, { headers })
       ]);
 
       setDashboardData(dashboardResponse.data);

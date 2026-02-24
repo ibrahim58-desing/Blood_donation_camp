@@ -1,6 +1,7 @@
 // components/volunteers/VolunteerDetails.jsx
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { API_URL } from "../api.js";
 import axios from 'axios';
 import { 
   FaUser, 
@@ -30,7 +31,7 @@ const VolunteerDetails = () => {
   const fetchVolunteerDetails = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get(`https://blood-donation-camp-backend-wmhh.onrender.com/api/volunteers/${id}`, {
+      const response = await axios.get(`${API_URL}/api/volunteers/${id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       

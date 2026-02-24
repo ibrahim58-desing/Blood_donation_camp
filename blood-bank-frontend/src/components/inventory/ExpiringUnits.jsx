@@ -1,6 +1,7 @@
 // components/inventory/ExpiringUnits.jsx
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { API_URL } from "../api.js";
 import axios from 'axios';
 import { 
   FaExclamationTriangle,
@@ -91,7 +92,7 @@ const fetchExpiringUnits = async () => {
         const token = localStorage.getItem('token');
         console.log('Fetching expiring units...');
         
-        const response = await axios.get('https://blood-donation-camp-backend-wmhh.onrender.com/api/inventory/expiring', {
+        const response = await axios.get(`${API_URL}/api/inventory/expiring`, {
             headers: { 
                 'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json'
@@ -264,7 +265,7 @@ const getDaysUntilExpiry = (expiryDate) => {
     try {
       const token = localStorage.getItem('token');
       const response = await axios.put(
-        `https://blood-donation-camp-backend-wmhh.onrender.com/api/inventory/${selectedUnit._id}/status`,
+        `${API_URL}/api/inventory/${selectedUnit._id}/status`,
         { 
           status: newStatus,
           reason: updateReason 
@@ -319,7 +320,7 @@ const getDaysUntilExpiry = (expiryDate) => {
     try {
       const token = localStorage.getItem('token');
       await axios.put(
-        `https://blood-donation-camp-backend-wmhh.onrender.com/api/inventory/${unit._id}/status`,
+        `${API_URL}/api/inventory/${unit._id}/status`,
         { status: newStatus },
         {
           headers: { 'Authorization': `Bearer ${token}` }

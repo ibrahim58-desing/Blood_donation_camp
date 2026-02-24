@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { API_URL } from "../api.js";
 import axios from 'axios';
 import {
   FaSyringe,
@@ -143,7 +144,7 @@ const RecordDonation = () => {
 
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get(`https://blood-donation-camp-backend-wmhh.onrender.com/api/donors/${code}`, {
+      const response = await axios.get(`${API_URL}/api/donors/${code}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
 
@@ -222,7 +223,7 @@ const RecordDonation = () => {
       };
 
       const response = await axios.post(
-        `https://blood-donation-camp-backend-wmhh.onrender.com/api/donors/${donor.donor_code}/donate`,
+        `${API_URL}/api/donors/${donor.donor_code}/donate`,
         donationData,
         {
           headers: {

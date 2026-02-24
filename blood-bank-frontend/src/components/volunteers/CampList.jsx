@@ -1,6 +1,7 @@
 // components/volunteers/CampList.jsx
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { API_URL } from "../api.js";
 import axios from 'axios';
 import { 
   FaCalendarAlt, 
@@ -94,7 +95,7 @@ const CampList = () => {
     setError('');
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get('https://blood-donation-camp-backend-wmhh.onrender.com/api/camps', {
+      const response = await axios.get(`${API_URL}/api/camps`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       
@@ -112,7 +113,7 @@ const CampList = () => {
     try {
       const token = localStorage.getItem('token');
       const response = await axios.post(
-        `https://blood-donation-camp-backend-wmhh.onrender.com/api/volunteers/trigger-cron`,
+        `${API_URL}/api/volunteers/trigger-cron`,
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -231,7 +232,7 @@ const CampList = () => {
       console.log('Update data:', updateData);
 
       const response = await axios.put(
-        `https://blood-donation-camp-backend-wmhh.onrender.com/api/camps/${editingCamp._id}`,
+        `${API_URL}/api/camps/${editingCamp._id}`,
         updateData,
         {
           headers: { 
@@ -282,7 +283,7 @@ const CampList = () => {
       const token = localStorage.getItem('token');
       
       await axios.delete(
-        `https://blood-donation-camp-backend-wmhh.onrender.com/api/camps/${deletingCamp._id}`,
+        `${API_URL}/api/camps/${deletingCamp._id}`,
         {
           headers: { 'Authorization': `Bearer ${token}` }
         }

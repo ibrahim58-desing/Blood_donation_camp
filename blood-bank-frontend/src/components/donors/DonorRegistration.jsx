@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { API_URL } from "../api.js";
 import axios from 'axios';
 import { 
   FaUserPlus, 
@@ -75,7 +76,7 @@ const DonorRegistration = () => {
       const token = localStorage.getItem('token');
       
       const response = await axios.post(
-        'https://blood-donation-camp-backend-wmhh.onrender.com/api/donors',
+        `${API_URL}/api/donors`,
         formData,
         {
           headers: {

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';  // Removed useEffect
 import { useNavigate } from 'react-router-dom';
+import { API_URL } from "../api.js";
 import axios from 'axios';
 import {
   FaClipboardList,
@@ -99,7 +100,7 @@ const RequestRegistration = () => {
     try {
       // PUBLIC ROUTE - No token needed
       const response = await axios.post(
-        'https://blood-donation-camp-backend-wmhh.onrender.com/api/requests',
+        `${API_URL}/api/requests`,
         formData,
         {
           headers: {

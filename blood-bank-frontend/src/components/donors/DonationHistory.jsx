@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
+import { API_URL } from "../api.js";
 import axios from 'axios';
 import {
   FaHistory,
@@ -106,7 +107,7 @@ const DonationHistory = () => {
       console.log("Searching for donor with code:", code);
       
       // Get donor details
-      const donorResponse = await axios.get(`https://blood-donation-camp-backend-wmhh.onrender.com/api/donors/${code}`, {
+      const donorResponse = await axios.get(`${API_URL}/api/donors/${code}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       
@@ -115,7 +116,7 @@ const DonationHistory = () => {
 
       // Get donation history for this donor
       console.log("Fetching donations for donor code:", code);
-      const donationsResponse = await axios.get(`https://blood-donation-camp-backend-wmhh.onrender.com/api/donors/${code}/donations`, {
+      const donationsResponse = await axios.get(`${API_URL}/api/donors/${code}/donations`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       

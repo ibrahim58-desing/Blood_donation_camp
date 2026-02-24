@@ -1,6 +1,7 @@
 // components/volunteers/CreateCamp.jsx
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { API_URL } from "../api.js";
 import axios from 'axios';
 import { 
   FaCalendarAlt, 
@@ -167,7 +168,7 @@ const CreateCamp = () => {
       
       // Send data exactly as your API expects
       const response = await axios.post(
-        'https://blood-donation-camp-backend-wmhh.onrender.com/api/camps',
+        `${API_URL}/api/camps`,
         {
           name: formData.name,
           date: formData.date,

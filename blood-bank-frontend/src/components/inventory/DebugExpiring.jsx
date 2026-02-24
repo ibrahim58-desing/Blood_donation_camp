@@ -1,6 +1,7 @@
 // components/inventory/DebugExpiring.jsx
 import React, { useState } from 'react';
 import axios from 'axios';
+import { API_URL } from "../api.js";
 
 const DebugExpiring = () => {
   const [debugData, setDebugData] = useState(null);
@@ -11,7 +12,7 @@ const DebugExpiring = () => {
     setLoading(true);
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get('https://blood-donation-camp-backend-wmhh.onrender.com/api/inventory/debug/expiring', {
+      const response = await axios.get(`${API_URL}/api/inventory/debug/expiring`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setDebugData(response.data);
@@ -27,7 +28,7 @@ const DebugExpiring = () => {
     setLoading(true);
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.post('https://blood-donation-camp-backend-wmhh.onrender.com/api/inventory/test/create-expiring', {}, {
+      const response = await axios.post(`${API_URL}/api/inventory/test/create-expiring`, {}, {
         headers: { Authorization: `Bearer ${token}` }
       });
       alert('Test data created!');
