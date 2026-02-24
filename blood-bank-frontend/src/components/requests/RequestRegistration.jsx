@@ -1,6 +1,6 @@
 import React, { useState } from 'react';  // Removed useEffect
 import { useNavigate } from 'react-router-dom';
-import { API_URL } from "../api.js";
+import API_URL from "../api.js";
 import axios from 'axios';
 import {
   FaClipboardList,

@@ -1,7 +1,7 @@
 // components/volunteers/VolunteerDetails.jsx
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { API_URL } from "../api.js";
+import API_URL from "../api.js";
 import axios from 'axios';
 import { 
   FaUser, 

@@ -1,7 +1,7 @@
 // components/inventory/DebugExpiring.jsx
 import React, { useState } from 'react';
 import axios from 'axios';
-import { API_URL } from "../api.js";
+import API_URL from "../api.js";
 
 const DebugExpiring = () => {
   const [debugData, setDebugData] = useState(null);

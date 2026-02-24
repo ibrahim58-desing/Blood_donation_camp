@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import DonorRegistration from './donors/DonorRegistration.jsx';
-import { API_URL } from "./api.js";
+import API_URL from "./api.js";
 import axios from 'axios';
 import {
   FaTachometerAlt,
