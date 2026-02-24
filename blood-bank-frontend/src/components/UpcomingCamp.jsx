@@ -31,7 +31,7 @@ const UpcomingCamps = () => {
     setError('');
     
     try {
-      const response = await axios.get('http://localhost:5000/api/camps/upcoming');
+      const response = await axios.get('https://blood-donation-camp-backend-wmhh.onrender.com/api/camps/upcoming');
       
       console.log('Fetched camps response:', response.data);
       
