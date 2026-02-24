@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import {API_URL} from './api.js'
 import {
   FaHeartbeat,
   FaUserCheck,
@@ -67,7 +68,7 @@ const HeroSection = () => {
     try {
       console.log('Fetching live inventory data...');
       
-      const response = await axios.get('http://localhost:5000/api/reports/inventory', {
+      const response = await axios.get(`${API_URL}/api/reports/inventory`, {
         timeout: 5000,
         headers: {
           'Content-Type': 'application/json'

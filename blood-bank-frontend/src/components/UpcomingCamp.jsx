@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { API_URL } from "../api.js";
+import { API_URL } from "./api";
 import { 
   FaCalendarAlt, 
   FaMapMarkerAlt, 
